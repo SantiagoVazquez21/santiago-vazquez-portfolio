@@ -1,0 +1,14 @@
+/*
+!/src/
+!/tests/
+!/lint/
+!/scripts/
+!/package.json
+!/tsconfig.json
+!/tsconfig.next.json
+!/next.config.ts
+!/vitest.config.mts
+!/postcss.config.mjs
+!/eslint.config.mjs
+!/eslint.unsuppressible.config.mjs
+!/.prettierrc.json

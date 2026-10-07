@@ -1,0 +1,7 @@
+@import "tailwindcss";
+@source not "../../specs";
+@source not "../../docs";
+@source not "../../.claude";
+@source not "../../CLAUDE.md";
+@source not "../../README.md";
+@source not "../../.agents";
