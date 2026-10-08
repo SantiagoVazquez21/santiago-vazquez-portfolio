@@ -4,7 +4,26 @@ export type Dictionary = {
     metaDescription: string;
     name: string;
     role: string;
-    notice: string;
+  };
+  desktop: {
+    groupName: string;
+    clockName: string;
+    labels: {
+      projects: string;
+      about: string;
+      experience: string;
+      skills: string;
+      education: string;
+      contact: string;
+      resume: string;
+      github: string;
+      linkedin: string;
+    };
+    actionNames: {
+      resume: string;
+      github: string;
+      linkedin: string;
+    };
   };
   switcher: {
     esCode: string;

@@ -16,7 +16,26 @@ const TEST_DICTIONARY: Dictionary = {
     metaDescription: "Test home meta description",
     name: "Test name",
     role: "Test role",
-    notice: "Test notice",
+  },
+  desktop: {
+    groupName: "Test group name",
+    clockName: "Test clock name",
+    labels: {
+      projects: "Test projects",
+      about: "Test about",
+      experience: "Test experience",
+      skills: "Test skills",
+      education: "Test education",
+      contact: "Test contact",
+      resume: "Test resume",
+      github: "Test github",
+      linkedin: "Test linkedin",
+    },
+    actionNames: {
+      resume: "Test resume action",
+      github: "Test github action",
+      linkedin: "Test linkedin action",
+    },
   },
   switcher: {
     esCode: "T-ES",

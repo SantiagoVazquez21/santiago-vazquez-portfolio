@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { Desktop } from "@/components/Desktop";
 import { PageMetadata } from "@/components/PageMetadata";
+import { Taskbar } from "@/components/Taskbar";
 import { DICTIONARIES } from "@/i18n";
 import { selectDictionary } from "@/lib/dictionaries";
 import { isSupportedLang } from "@/lib/locale";
@@ -21,14 +22,15 @@ export default async function HomePage({ params }: HomePageProps) {
   return (
     <>
       <PageMetadata metadata={buildHomeMetadata(dictionary)} />
-      <nav className="mx-auto max-w-2xl px-4 py-3">
-        <LanguageSwitcher lang={activeLang} texts={dictionary.switcher} />
-      </nav>
-      <main className="mx-auto max-w-2xl px-4 py-8 break-words">
-        <h1 className="text-2xl font-bold">{dictionary.home.name}</h1>
-        <p>{dictionary.home.role}</p>
-        <p>{dictionary.home.notice}</p>
-      </main>
+      <div className="flex h-dvh flex-col">
+        <Desktop home={dictionary.home} texts={dictionary.desktop} />
+        <Taskbar
+          lang={activeLang}
+          home={dictionary.home}
+          switcherTexts={dictionary.switcher}
+          clockName={dictionary.desktop.clockName}
+        />
+      </div>
     </>
   );
 }

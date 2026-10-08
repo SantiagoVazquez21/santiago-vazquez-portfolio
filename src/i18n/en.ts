@@ -7,7 +7,26 @@ export const en = {
       "Portfolio of Santiago Elian Vazquez, full stack developer.",
     name: "Santiago Elian Vazquez",
     role: "Full Stack Developer",
-    notice: "Portfolio under construction",
+  },
+  desktop: {
+    groupName: "Desktop",
+    clockName: "Local time",
+    labels: {
+      projects: "Projects",
+      about: "About me",
+      experience: "Experience",
+      skills: "Skills",
+      education: "Education",
+      contact: "Contact",
+      resume: "Resume",
+      github: "GitHub",
+      linkedin: "LinkedIn",
+    },
+    actionNames: {
+      resume: "Resume, download PDF",
+      github: "GitHub, opens in a new tab",
+      linkedin: "LinkedIn, opens in a new tab",
+    },
   },
   switcher: {
     esCode: "ES",
