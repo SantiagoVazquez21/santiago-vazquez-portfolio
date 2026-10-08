@@ -1,0 +1,78 @@
+import { describe, expect, it } from "vitest";
+import { CONTENT } from "@/content";
+import { LOGO_CREDITS } from "@/content/catalog";
+import { DICTIONARIES } from "@/i18n";
+import { fillTemplate } from "@/lib/text-template";
+
+const LANGS = ["es", "en"] as const;
+
+describe("sections texts (spec 004, annex B)", () => {
+  it("match annex B in Spanish", () => {
+    expect(DICTIONARIES.es.sections).toEqual({
+      technologies: "Tecnologías",
+      repository: "Repositorio",
+      repositoryName: "Repositorio de {project}, se abre en una pestaña nueva",
+      languages: "Idiomas",
+      separator: " · ",
+      back: "Volver",
+      folderGroup: "Carpetas de habilidades",
+      logoCredit: "Logo de {brand} por {author} (color aplicado),",
+      logoLicenseName:
+        "Licencia {license} del logo de {brand}, se abre en una pestaña nueva",
+    });
+  });
+
+  it("match annex B in English", () => {
+    expect(DICTIONARIES.en.sections).toEqual({
+      technologies: "Technologies",
+      repository: "Repository",
+      repositoryName: "{project} repository, opens in a new tab",
+      languages: "Languages",
+      separator: " · ",
+      back: "Back",
+      folderGroup: "Skill folders",
+      logoCredit: "{brand} logo by {author} (color applied),",
+      logoLicenseName:
+        "{license} license for the {brand} logo, opens in a new tab",
+    });
+  });
+});
+
+describe("logo credit templates (RF-15)", () => {
+  it("fill in with PHP and Git as annex B shows", () => {
+    const values = { brand: "PHP", author: "Colin Viebrock" };
+    expect(fillTemplate(DICTIONARIES.es.sections.logoCredit, values)).toBe(
+      "Logo de PHP por Colin Viebrock (color aplicado),",
+    );
+    expect(fillTemplate(DICTIONARIES.en.sections.logoCredit, values)).toBe(
+      "PHP logo by Colin Viebrock (color applied),",
+    );
+    const license = { license: "CC BY 3.0", brand: "Git" };
+    expect(
+      fillTemplate(DICTIONARIES.es.sections.logoLicenseName, license),
+    ).toBe("Licencia CC BY 3.0 del logo de Git, se abre en una pestaña nueva");
+    expect(
+      fillTemplate(DICTIONARIES.en.sections.logoLicenseName, license),
+    ).toBe("CC BY 3.0 license for the Git logo, opens in a new tab");
+  });
+
+  describe.each(LANGS)("with the %s content", (lang) => {
+    const texts = DICTIONARIES[lang].sections;
+    const content = CONTENT[lang];
+
+    it.each(LOGO_CREDITS.map((credit) => credit.id))(
+      "names the brand, author and license of %s with nothing left to fill",
+      (id) => {
+        const brand = content.skills[id];
+        const { author, license } = content.logoCredits[id];
+        const credit = fillTemplate(texts.logoCredit, { brand, author });
+        const name = fillTemplate(texts.logoLicenseName, { license, brand });
+        expect(credit).toContain(brand);
+        expect(credit).toContain(author);
+        expect(name).toContain(brand);
+        expect(name).toContain(license);
+        expect(`${credit} ${name}`).not.toMatch(/[{}‹›]/);
+      },
+    );
+  });
+});

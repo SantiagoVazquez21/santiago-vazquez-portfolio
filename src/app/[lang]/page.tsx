@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { DesktopShell } from "@/components/DesktopShell";
 import { PageMetadata } from "@/components/PageMetadata";
+import { CONTENT } from "@/content";
+import type { PortfolioContent } from "@/content/types";
 import { DICTIONARIES } from "@/i18n";
 import { selectDictionary } from "@/lib/dictionaries";
 import { isSupportedLang } from "@/lib/locale";
@@ -18,6 +20,7 @@ export default async function HomePage({ params }: HomePageProps) {
   }
   const activeLang = lang;
   const dictionary = selectDictionary(activeLang, DICTIONARIES);
+  const content = selectDictionary<PortfolioContent>(activeLang, CONTENT);
   return (
     <>
       <PageMetadata metadata={buildHomeMetadata(dictionary)} />
@@ -27,6 +30,8 @@ export default async function HomePage({ params }: HomePageProps) {
         desktopTexts={dictionary.desktop}
         windowTexts={dictionary.windows}
         switcherTexts={dictionary.switcher}
+        content={content}
+        sectionTexts={dictionary.sections}
       />
     </>
   );

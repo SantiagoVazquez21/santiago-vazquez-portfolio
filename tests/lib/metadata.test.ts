@@ -45,6 +45,17 @@ const TEST_DICTIONARY: Dictionary = {
     placeholder: "Test placeholder",
     taskbarGroup: "Test taskbar group",
   },
+  sections: {
+    technologies: "Test technologies",
+    repository: "Test repository",
+    repositoryName: "Test repository name {project}",
+    languages: "Test languages",
+    separator: "Test separator",
+    back: "Test back",
+    folderGroup: "Test folder group",
+    logoCredit: "Test logo credit {brand} {author}",
+    logoLicenseName: "Test logo license name {license} {brand}",
+  },
   switcher: {
     esCode: "T-ES",
     enCode: "T-EN",

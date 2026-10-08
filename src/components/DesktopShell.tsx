@@ -5,6 +5,8 @@ import { AppWindow } from "@/components/AppWindow";
 import { Desktop } from "@/components/Desktop";
 import { Taskbar } from "@/components/Taskbar";
 import { TaskbarWindowButtons } from "@/components/TaskbarWindowButtons";
+import { WindowContent } from "@/components/WindowContent";
+import type { PortfolioContent } from "@/content/types";
 import type { Dictionary } from "@/i18n/types";
 import type { IconId, WindowId } from "@/lib/desktop-catalog";
 import type { Lang } from "@/lib/locale";
@@ -58,6 +60,9 @@ type DesktopShellProps = {
   desktopTexts: Dictionary["desktop"];
   windowTexts: Dictionary["windows"];
   switcherTexts: Dictionary["switcher"];
+  // Only the active language's content reaches the client (spec 004, RF-14).
+  content: PortfolioContent;
+  sectionTexts: Dictionary["sections"];
 };
 
 // Owns the window state, shared by the icons, the windows and the taskbar (plan, D1).
@@ -71,6 +76,8 @@ export function DesktopShell({
   desktopTexts,
   windowTexts,
   switcherTexts,
+  content,
+  sectionTexts,
 }: DesktopShellProps) {
   const [windows, setWindows] = useState<WindowsState>(NO_WINDOWS);
   // Null until the first measurement; never read before hydration (plan, section 6).
@@ -254,7 +261,14 @@ export function DesktopShell({
                 onHandlePointerDown={(event) => handleDragStart(win, event)}
                 onHandlePointerMove={handleDragMove}
                 onHandlePointerEnd={handleDragEnd}
-              />
+              >
+                <WindowContent
+                  id={win.id}
+                  content={content}
+                  texts={sectionTexts}
+                  placeholder={windowTexts.placeholder}
+                />
+              </AppWindow>
             ))}
         </div>
       </main>

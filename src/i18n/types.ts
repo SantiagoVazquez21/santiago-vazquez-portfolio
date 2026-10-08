@@ -33,6 +33,17 @@ export type Dictionary = {
     placeholder: string;
     taskbarGroup: string;
   };
+  sections: {
+    technologies: string;
+    repository: string;
+    repositoryName: string;
+    languages: string;
+    separator: string;
+    back: string;
+    folderGroup: string;
+    logoCredit: string;
+    logoLicenseName: string;
+  };
   switcher: {
     esCode: string;
     enCode: string;

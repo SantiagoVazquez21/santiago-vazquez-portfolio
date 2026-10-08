@@ -36,6 +36,18 @@ export const es = {
     placeholder: "Contenido en preparación.",
     taskbarGroup: "Ventanas abiertas",
   },
+  sections: {
+    technologies: "Tecnologías",
+    repository: "Repositorio",
+    repositoryName: "Repositorio de {project}, se abre en una pestaña nueva",
+    languages: "Idiomas",
+    separator: " · ",
+    back: "Volver",
+    folderGroup: "Carpetas de habilidades",
+    logoCredit: "Logo de {brand} por {author} (color aplicado),",
+    logoLicenseName:
+      "Licencia {license} del logo de {brand}, se abre en una pestaña nueva",
+  },
   switcher: {
     esCode: "ES",
     enCode: "EN",

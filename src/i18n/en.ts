@@ -36,6 +36,18 @@ export const en = {
     placeholder: "Content coming soon.",
     taskbarGroup: "Open windows",
   },
+  sections: {
+    technologies: "Technologies",
+    repository: "Repository",
+    repositoryName: "{project} repository, opens in a new tab",
+    languages: "Languages",
+    separator: " · ",
+    back: "Back",
+    folderGroup: "Skill folders",
+    logoCredit: "{brand} logo by {author} (color applied),",
+    logoLicenseName:
+      "{license} license for the {brand} logo, opens in a new tab",
+  },
   switcher: {
     esCode: "ES",
     enCode: "EN",

@@ -2,6 +2,7 @@ import {
   useId,
   type KeyboardEvent,
   type PointerEvent,
+  type ReactNode,
   type RefCallback,
 } from "react";
 import type { Dictionary } from "@/i18n/types";
@@ -29,6 +30,8 @@ type AppWindowProps = {
   onHandlePointerDown: (event: PointerEvent<HTMLElement>) => void;
   onHandlePointerMove: (event: PointerEvent<HTMLElement>) => void;
   onHandlePointerEnd: (event: PointerEvent<HTMLElement>) => void;
+  // The section's content, painted under its heading (spec 004, RF-1).
+  children: ReactNode;
 };
 
 type TitleButtonProps = {
@@ -87,6 +90,7 @@ export function AppWindow({
   onHandlePointerDown,
   onHandlePointerMove,
   onHandlePointerEnd,
+  children,
 }: AppWindowProps) {
   const titleId = useId();
 
@@ -166,9 +170,10 @@ export function AppWindow({
           onClick={onClose}
         />
       </div>
-      <div className="mt-0.5 min-h-0 flex-1 overflow-y-auto border-2 border-t-[#808080] border-r-white border-b-white border-l-[#808080] bg-white p-4 break-words">
+      {/* A column, so a section can stretch over the blank rest of the body (spec 004, RF-8). */}
+      <div className="mt-0.5 flex min-h-0 flex-1 flex-col overflow-y-auto border-2 border-t-[#808080] border-r-white border-b-white border-l-[#808080] bg-white p-4 break-words">
         <h2 className="text-xl font-bold">{title}</h2>
-        <p className="mt-2">{texts.placeholder}</p>
+        {children}
       </div>
     </div>
   );
