@@ -42,6 +42,8 @@ export const en = {
     languages: "Languages",
     separator: " · ",
     back: "Back",
+    pause: "Pause",
+    resume: "Resume",
     folderGroup: "Skill folders",
     logoCredit: "{brand} logo by {author} (color applied),",
     logoLicenseName:

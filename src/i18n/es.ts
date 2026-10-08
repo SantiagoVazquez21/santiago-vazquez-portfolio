@@ -42,6 +42,8 @@ export const es = {
     languages: "Idiomas",
     separator: " · ",
     back: "Volver",
+    pause: "Pausar",
+    resume: "Reanudar",
     folderGroup: "Carpetas de habilidades",
     logoCredit: "Logo de {brand} por {author} (color aplicado),",
     logoLicenseName:

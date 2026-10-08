@@ -39,6 +39,8 @@ export type Dictionary = {
     languages: string;
     separator: string;
     back: string;
+    pause: string;
+    resume: string;
     folderGroup: string;
     logoCredit: string;
     logoLicenseName: string;

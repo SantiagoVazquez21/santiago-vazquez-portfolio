@@ -6,8 +6,8 @@ import { fillTemplate } from "@/lib/text-template";
 
 const LANGS = ["es", "en"] as const;
 
-describe("sections texts (spec 004, annex B)", () => {
-  it("match annex B in Spanish", () => {
+describe("sections texts (spec 004 annex B, spec 006 annex A)", () => {
+  it("match the annexes in Spanish", () => {
     expect(DICTIONARIES.es.sections).toEqual({
       technologies: "Tecnologías",
       repository: "Repositorio",
@@ -15,6 +15,8 @@ describe("sections texts (spec 004, annex B)", () => {
       languages: "Idiomas",
       separator: " · ",
       back: "Volver",
+      pause: "Pausar",
+      resume: "Reanudar",
       folderGroup: "Carpetas de habilidades",
       logoCredit: "Logo de {brand} por {author} (color aplicado),",
       logoLicenseName:
@@ -22,7 +24,7 @@ describe("sections texts (spec 004, annex B)", () => {
     });
   });
 
-  it("match annex B in English", () => {
+  it("match the annexes in English", () => {
     expect(DICTIONARIES.en.sections).toEqual({
       technologies: "Technologies",
       repository: "Repository",
@@ -30,6 +32,8 @@ describe("sections texts (spec 004, annex B)", () => {
       languages: "Languages",
       separator: " · ",
       back: "Back",
+      pause: "Pause",
+      resume: "Resume",
       folderGroup: "Skill folders",
       logoCredit: "{brand} logo by {author} (color applied),",
       logoLicenseName:

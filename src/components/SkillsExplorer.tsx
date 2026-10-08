@@ -9,11 +9,11 @@ import {
   type MouseEvent,
   type PointerEvent,
 } from "react";
+import { SkillsPlayground } from "@/components/SkillsPlayground";
 import {
   BACK_GLYPH,
   FOLDER_GLYPH,
   SKILL_FOLDERS,
-  SKILL_GLYPHS,
   type FolderId,
 } from "@/content/catalog";
 import type { PortfolioContent } from "@/content/types";
@@ -40,6 +40,8 @@ type SkillsExplorerProps = {
 // clears the selection, like the desktop background (RF-8).
 export function SkillsExplorer({ content, texts }: SkillsExplorerProps) {
   const [view, setView] = useState<SkillsView>(SKILLS_START);
+  // Kept across folders and minimizing, reset by closing the window (RF-9, plan D10).
+  const [paused, setPaused] = useState(false);
   // A state-held Map keeps one instance across renders without reading a ref while rendering.
   const [folderElements] = useState(() => new Map<FolderId, HTMLElement>());
   const backButton = useRef<HTMLButtonElement>(null);
@@ -117,13 +119,14 @@ export function SkillsExplorer({ content, texts }: SkillsExplorerProps) {
     }
   }
 
-  // A held Enter or Space repeats keydown; only the first press may go back (RF-10).
+  // A held Enter or Space repeats keydown; only the first press may go back or toggle
+  // the pause (004 RF-10, 006 RF-7).
   function handleBackKeyDown(event: KeyboardEvent<HTMLElement>) {
     if (event.repeat) event.preventDefault();
   }
 
-  // Listened to here and not on the dialog: only a folder or "Back" can hold the focus
-  // inside this root, so with the focus on the window itself the key does nothing,
+  // Listened to here and not on the dialog: only a folder, "Back" or the pause button can
+  // hold the focus inside this root, so with the focus on the window itself the key does nothing,
   // not even preventDefault (RF-10). Escape bubbles on to the dialog and closes it.
   function handleRootKeyDown(event: KeyboardEvent<HTMLElement>) {
     if (!isBackKey(event.key)) return;
@@ -150,7 +153,7 @@ export function SkillsExplorer({ content, texts }: SkillsExplorerProps) {
     <div
       onClick={handleRootClick}
       onKeyDown={handleRootKeyDown}
-      className="flex-1 pt-4"
+      className="flex flex-1 flex-col pt-4"
     >
       {/* Folders are 8 rem wide, not the desktop's 6: browsers never wrap after the "/" of
           a name, so its longest word must fit whole or break-words would split it (RNF-3).
@@ -198,52 +201,48 @@ export function SkillsExplorer({ content, texts }: SkillsExplorerProps) {
         </ul>
       ) : (
         <>
-          {/* Raised like the title buttons, sunken while pressed, with the focus ring inside the bevel (RNF-2). */}
-          <button
-            ref={backButton}
-            type="button"
-            onClick={() => navigate(goBack(view, Date.now()))}
-            onKeyDown={handleBackKeyDown}
-            className="flex items-center gap-1 border-2 border-t-white border-r-black border-b-black border-l-white bg-[#C0C0C0] px-2 py-1 text-sm select-none focus-visible:outline-1 focus-visible:-outline-offset-4 focus-visible:outline-black focus-visible:outline-dotted active:border-t-black active:border-r-white active:border-b-white active:border-l-black"
-          >
-            <img
-              src={BACK_GLYPH}
-              alt=""
-              width={16}
-              height={16}
-              draggable={false}
-              className="h-4 w-4"
-            />
-            {texts.back}
-          </button>
+          {/* Raised like the title buttons, sunken while pressed, with the focus ring inside the bevel (RNF-2).
+              The row keeps the button its own width inside the column root. */}
+          <div className="flex flex-wrap gap-2">
+            <button
+              ref={backButton}
+              type="button"
+              onClick={() => navigate(goBack(view, Date.now()))}
+              onKeyDown={handleBackKeyDown}
+              className="flex items-center gap-1 border-2 border-t-white border-r-black border-b-black border-l-white bg-[#C0C0C0] px-2 py-1 text-sm select-none focus-visible:outline-1 focus-visible:-outline-offset-4 focus-visible:outline-black focus-visible:outline-dotted active:border-t-black active:border-r-white active:border-b-white active:border-l-black"
+            >
+              <img
+                src={BACK_GLYPH}
+                alt=""
+                width={16}
+                height={16}
+                draggable={false}
+                className="h-4 w-4"
+              />
+              {texts.back}
+            </button>
+            {/* After "Back" in DOM order, so Tab reaches it next (RF-7). Its visible text is its
+                accessible name, so no aria-pressed. Backspace bubbles to the root (RF-14). */}
+            <button
+              type="button"
+              onClick={() => setPaused((current) => !current)}
+              onKeyDown={handleBackKeyDown}
+              className="flex items-center gap-1 border-2 border-t-white border-r-black border-b-black border-l-white bg-[#C0C0C0] px-2 py-1 text-sm select-none focus-visible:outline-1 focus-visible:-outline-offset-4 focus-visible:outline-black focus-visible:outline-dotted active:border-t-black active:border-r-white active:border-b-white active:border-l-black"
+            >
+              {paused ? texts.resume : texts.pause}
+            </button>
+          </div>
           <h3 id={headingId} className="mt-4 text-lg font-bold">
             {content.folders[openEntry.id]}
           </h3>
-          {/* Still icons: no focus, no selection and no handlers, so a click or tap does nothing (RF-9). */}
-          <ul
-            role="list"
-            aria-labelledby={headingId}
-            className="mt-2 grid grid-cols-[repeat(auto-fill,minmax(min(5.5rem,100%),1fr))] gap-4"
-          >
-            {openEntry.skillIds.map((skillId) => (
-              <li
-                key={skillId}
-                className="flex w-22 max-w-full flex-col items-center gap-1 justify-self-center text-center text-sm select-none"
-              >
-                <img
-                  src={SKILL_GLYPHS[skillId].src}
-                  alt=""
-                  width={32}
-                  height={32}
-                  draggable={false}
-                  className="h-8 w-8"
-                />
-                <span className="max-w-full break-words">
-                  {content.skills[skillId]}
-                </span>
-              </li>
-            ))}
-          </ul>
+          {/* A new key per folder gives every opening new positions and directions (RF-1). */}
+          <SkillsPlayground
+            key={openEntry.id}
+            skillIds={openEntry.skillIds}
+            names={content.skills}
+            labelledBy={headingId}
+            paused={paused}
+          />
         </>
       )}
     </div>

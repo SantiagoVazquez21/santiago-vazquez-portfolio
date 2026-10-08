@@ -51,6 +51,8 @@ const TEST_DICTIONARY: Dictionary = {
     languages: "Test languages",
     separator: "Test separator",
     back: "Test back",
+    pause: "Test pause",
+    resume: "Test resume",
     folderGroup: "Test folder group",
     logoCredit: "Test logo credit {brand} {author}",
     logoLicenseName: "Test logo license name {license} {brand}",

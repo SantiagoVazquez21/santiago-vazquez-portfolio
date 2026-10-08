@@ -13,6 +13,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "motion": "^12",
     "next": "^16",
     "react": "^19",
     "react-dom": "^19"
