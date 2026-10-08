@@ -63,6 +63,7 @@ type DesktopShellProps = {
   // Only the active language's content reaches the client (spec 004, RF-14).
   content: PortfolioContent;
   sectionTexts: Dictionary["sections"];
+  contactTexts: Dictionary["contact"];
 };
 
 // Owns the window state, shared by the icons, the windows and the taskbar (plan, D1).
@@ -78,6 +79,7 @@ export function DesktopShell({
   switcherTexts,
   content,
   sectionTexts,
+  contactTexts,
 }: DesktopShellProps) {
   const [windows, setWindows] = useState<WindowsState>(NO_WINDOWS);
   // Null until the first measurement; never read before hydration (plan, section 6).
@@ -266,7 +268,7 @@ export function DesktopShell({
                   id={win.id}
                   content={content}
                   texts={sectionTexts}
-                  placeholder={windowTexts.placeholder}
+                  contactTexts={contactTexts}
                 />
               </AppWindow>
             ))}

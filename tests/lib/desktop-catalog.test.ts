@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import * as catalog from "@/lib/desktop-catalog";
 import {
   DESKTOP_ICONS,
+  LINKEDIN_URL,
   WINDOW_CONTROL_GLYPHS,
   WINDOW_IDS,
   type IconId,
@@ -111,6 +112,18 @@ describe("DESKTOP_ICONS", () => {
       });
     },
   );
+});
+
+describe("LINKEDIN_URL", () => {
+  it("is the exact profile URL (spec 005, RF-8)", () => {
+    expect(LINKEDIN_URL).toBe(
+      "https://www.linkedin.com/in/santiago-vazquez-b266b3374/",
+    );
+  });
+
+  it("is the destination of the LinkedIn icon (plan 005, D11)", () => {
+    expect(entryFor("linkedin").href).toBe(LINKEDIN_URL);
+  });
 });
 
 describe("WINDOW_IDS", () => {

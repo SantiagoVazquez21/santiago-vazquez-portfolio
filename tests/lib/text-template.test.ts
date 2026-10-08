@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { DICTIONARIES } from "@/i18n";
-import { fillTemplate } from "@/lib/text-template";
+import { fillTemplate, splitTemplate } from "@/lib/text-template";
 
 describe("fillTemplate", () => {
   it("replaces a key with its value", () => {
@@ -39,5 +39,43 @@ describe("fillTemplate", () => {
         project: "Gestion Pro",
       }),
     ).toBe("Gestion Pro repository, opens in a new tab");
+  });
+});
+
+describe("splitTemplate", () => {
+  it("splits around a key in the middle (RF-8)", () => {
+    expect(
+      splitTemplate("También podés escribirme por {link}.", "link"),
+    ).toEqual({ before: "También podés escribirme por ", after: "." });
+  });
+
+  it("gives an empty before when the key opens the text", () => {
+    expect(splitTemplate("{link} es mi perfil", "link")).toEqual({
+      before: "",
+      after: " es mi perfil",
+    });
+  });
+
+  it("gives an empty after when the key closes the text", () => {
+    expect(splitTemplate("Escribime por {link}", "link")).toEqual({
+      before: "Escribime por ",
+      after: "",
+    });
+  });
+
+  it("throws when the key is missing from the text", () => {
+    expect(() => splitTemplate("Sin enlace.", "link")).toThrow();
+  });
+
+  it("throws when the key appears more than once", () => {
+    expect(() => splitTemplate("{link} y {link}", "link")).toThrow();
+  });
+
+  it("does not take a different key as the requested one", () => {
+    expect(() => splitTemplate("Hasta {max} caracteres.", "link")).toThrow();
+    expect(splitTemplate("{max} y {link}.", "link")).toEqual({
+      before: "{max} y ",
+      after: ".",
+    });
   });
 });

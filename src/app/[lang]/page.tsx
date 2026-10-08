@@ -32,6 +32,7 @@ export default async function HomePage({ params }: HomePageProps) {
         switcherTexts={dictionary.switcher}
         content={content}
         sectionTexts={dictionary.sections}
+        contactTexts={dictionary.contact}
       />
     </>
   );

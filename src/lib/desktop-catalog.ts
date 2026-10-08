@@ -15,6 +15,10 @@ export type DesktopIconEntry = {
 
 const RESUME_FILE_NAME = "CV_SantiagoElianVazquez.pdf";
 
+// Shared by the desktop icon and the contact form's send error (spec 005, RF-8).
+export const LINKEDIN_URL =
+  "https://www.linkedin.com/in/santiago-vazquez-b266b3374/";
+
 // Order of RF-2.
 export const DESKTOP_ICONS: readonly DesktopIconEntry[] = [
   {
@@ -76,7 +80,7 @@ export const DESKTOP_ICONS: readonly DesktopIconEntry[] = [
   {
     id: "linkedin",
     glyphSrc: "/icons/linkedin.svg",
-    href: "https://www.linkedin.com/in/santiago-vazquez-b266b3374/",
+    href: LINKEDIN_URL,
     opensNewTab: true,
     downloadName: null,
   },

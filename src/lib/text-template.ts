@@ -12,3 +12,15 @@ export function fillTemplate(
     return values[key];
   });
 }
+
+// Splits around a single {key} so a component can place an element (a link) in between (spec 005, RF-8).
+export function splitTemplate(
+  template: string,
+  key: string,
+): { before: string; after: string } {
+  const parts = template.split(`{${key}}`);
+  if (parts.length !== 2) {
+    throw new Error(`Expected "{${key}}" exactly once in the template`);
+  }
+  return { before: parts[0], after: parts[1] };
+}

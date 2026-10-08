@@ -30,7 +30,6 @@ export type Dictionary = {
     maximize: string;
     restore: string;
     close: string;
-    placeholder: string;
     taskbarGroup: string;
   };
   sections: {
@@ -61,6 +60,27 @@ export type Dictionary = {
     heading: string;
     message: string;
     retry: string;
+  };
+  contact: {
+    intro: string;
+    requiredNote: string;
+    nameLabel: string;
+    emailLabel: string;
+    messageLabel: string;
+    submit: string;
+    sending: string;
+    sent: string;
+    failed: string;
+    failedAlternative: string;
+    linkedinLink: string;
+    linkedinLinkName: string;
+    rateLimited: string;
+    nameRequired: string;
+    nameTooLong: string;
+    emailRequired: string;
+    emailInvalid: string;
+    messageRequired: string;
+    messageTooLong: string;
   };
   common: { homeLink: string };
 };

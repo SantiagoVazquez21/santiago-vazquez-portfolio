@@ -33,7 +33,6 @@ export const en = {
     maximize: "Maximize",
     restore: "Restore",
     close: "Close",
-    placeholder: "Content coming soon.",
     taskbarGroup: "Open windows",
   },
   sections: {
@@ -65,6 +64,29 @@ export const en = {
     heading: "Something went wrong",
     message: "An unexpected error occurred while displaying this page.",
     retry: "Try again",
+  },
+  contact: {
+    intro: "I reply to every message by email.",
+    requiredNote: "All fields are required.",
+    nameLabel: "Name",
+    emailLabel: "Email",
+    messageLabel: "Message",
+    submit: "Send",
+    sending: "Sending…",
+    sent: "Message sent. I'll reply by email as soon as possible.",
+    failed:
+      "The message couldn't be sent. Your text is still in the form so you can try again.",
+    failedAlternative: "You can also reach me on {link}.",
+    linkedinLink: "LinkedIn",
+    linkedinLinkName: "LinkedIn, opens in a new tab",
+    rateLimited:
+      "There were several attempts in a row. You can try again in a few minutes; your text is still in the form.",
+    nameRequired: "Name is required.",
+    nameTooLong: "Name can be up to {max} characters long.",
+    emailRequired: "Email is required.",
+    emailInvalid: "The email isn't valid. Example: name@example.com",
+    messageRequired: "Message is required.",
+    messageTooLong: "Message can be up to {max} characters long.",
   },
   common: {
     homeLink: "Go to the home page",

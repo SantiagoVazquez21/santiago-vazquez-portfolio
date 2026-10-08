@@ -33,7 +33,6 @@ export const es = {
     maximize: "Maximizar",
     restore: "Restaurar",
     close: "Cerrar",
-    placeholder: "Contenido en preparación.",
     taskbarGroup: "Ventanas abiertas",
   },
   sections: {
@@ -65,6 +64,29 @@ export const es = {
     heading: "Algo salió mal",
     message: "Ocurrió un error inesperado al mostrar esta página.",
     retry: "Reintentar",
+  },
+  contact: {
+    intro: "Respondo todos los mensajes por email.",
+    requiredNote: "Todos los campos son obligatorios.",
+    nameLabel: "Nombre",
+    emailLabel: "Email",
+    messageLabel: "Mensaje",
+    submit: "Enviar",
+    sending: "Enviando…",
+    sent: "Mensaje enviado. Te responderé por email lo antes posible.",
+    failed:
+      "No se pudo enviar el mensaje. Lo escrito sigue en el formulario para volver a intentarlo.",
+    failedAlternative: "También podés escribirme por {link}.",
+    linkedinLink: "LinkedIn",
+    linkedinLinkName: "LinkedIn, se abre en una pestaña nueva",
+    rateLimited:
+      "Hubo varios intentos seguidos. Podrás volver a intentarlo en unos minutos; lo escrito sigue en el formulario.",
+    nameRequired: "El nombre es obligatorio.",
+    nameTooLong: "El nombre puede tener hasta {max} caracteres.",
+    emailRequired: "El email es obligatorio.",
+    emailInvalid: "El email no es válido. Ejemplo: nombre@ejemplo.com",
+    messageRequired: "El mensaje es obligatorio.",
+    messageTooLong: "El mensaje puede tener hasta {max} caracteres.",
   },
   common: {
     homeLink: "Ir a la página principal",

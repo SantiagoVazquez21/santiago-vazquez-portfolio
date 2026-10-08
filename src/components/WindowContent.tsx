@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { AboutSection } from "@/components/AboutSection";
+import { ContactForm } from "@/components/ContactForm";
 import { EducationSection } from "@/components/EducationSection";
 import { ExperienceSection } from "@/components/ExperienceSection";
 import { ProjectsSection } from "@/components/ProjectsSection";
@@ -11,16 +12,15 @@ import type { WindowId } from "@/lib/desktop-catalog";
 type SectionProps = {
   content: PortfolioContent;
   texts: Dictionary["sections"];
-  placeholder: string;
+  contactTexts: Dictionary["contact"];
 };
 
 type WindowContentProps = SectionProps & {
   id: WindowId;
 };
 
-// Contact keeps the notice of spec 003 until spec 006 (RF-1).
-function ContactSection({ placeholder }: SectionProps) {
-  return <p className="mt-2">{placeholder}</p>;
+function ContactSection({ contactTexts }: SectionProps) {
+  return <ContactForm texts={contactTexts} />;
 }
 
 // A map, never a comparison of ids: each window names its section (plan, section 4).

@@ -59,6 +59,11 @@ describe("resolveRequest", () => {
     const [pathname, search] = splitUrl(url);
     expect(resolveRequest(pathname, search)).toEqual(expected);
   });
+
+  // Spec 005: the proxy must let the contact POST through untouched.
+  it("/api/contact renders without a redirect", () => {
+    expect(resolveRequest("/api/contact", "")).toEqual(render("es"));
+  });
 });
 
 describe("langForPath", () => {
