@@ -1,8 +1,14 @@
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import * as catalog from "@/lib/desktop-catalog";
-import { DESKTOP_ICONS, type IconId } from "@/lib/desktop-catalog";
+import {
+  DESKTOP_ICONS,
+  WINDOW_CONTROL_GLYPHS,
+  WINDOW_IDS,
+  type IconId,
+  type WindowId,
+} from "@/lib/desktop-catalog";
 
 const PUBLIC_DIR = fileURLToPath(new URL("../../public", import.meta.url));
 
@@ -19,7 +25,7 @@ const EXPECTED_ORDER: readonly IconId[] = [
   "linkedin",
 ];
 
-const WINDOW_IDS: readonly IconId[] = [
+const EXPECTED_WINDOW_IDS: readonly WindowId[] = [
   "projects",
   "about",
   "experience",
@@ -93,7 +99,7 @@ describe("DESKTOP_ICONS", () => {
     expect(publicFileExists(href ?? "")).toBe(true);
   });
 
-  it.each(WINDOW_IDS)(
+  it.each(EXPECTED_WINDOW_IDS)(
     "%s is a window icon: no destination, no new tab, no download (RF-9)",
     (id) => {
       expect(entryFor(id)).toEqual({
@@ -105,6 +111,51 @@ describe("DESKTOP_ICONS", () => {
       });
     },
   );
+});
+
+describe("WINDOW_IDS", () => {
+  it("lists the 6 window icons in the order of RF-2 (RF-1)", () => {
+    expect(WINDOW_IDS).toEqual(EXPECTED_WINDOW_IDS);
+  });
+
+  it("is exactly the icons without a destination, in catalog order", () => {
+    const withoutDestination = DESKTOP_ICONS.filter(
+      (entry) => entry.href === null,
+    ).map((entry) => entry.id);
+    expect(WINDOW_IDS).toEqual(withoutDestination);
+  });
+});
+
+describe("WINDOW_CONTROL_GLYPHS", () => {
+  const CONTROLS = ["minimize", "maximize", "restore", "close"] as const;
+
+  it("has one glyph per title bar button, and nothing else (RF-3)", () => {
+    expect(Object.keys(WINDOW_CONTROL_GLYPHS).sort()).toEqual(
+      [...CONTROLS].sort(),
+    );
+  });
+
+  it.each(CONTROLS)(
+    "the %s glyph lives under /icons/window-*.svg",
+    (control) => {
+      expect(WINDOW_CONTROL_GLYPHS[control]).toBe(
+        `/icons/window-${control}.svg`,
+      );
+    },
+  );
+
+  it.each(CONTROLS)("the %s glyph exists in public/", (control) => {
+    expect(publicFileExists(WINDOW_CONTROL_GLYPHS[control])).toBe(true);
+  });
+
+  it("the 4 glyphs are different drawings (RF-3)", () => {
+    const paths = CONTROLS.map((control) => WINDOW_CONTROL_GLYPHS[control]);
+    expect(new Set(paths).size).toBe(CONTROLS.length);
+    const drawings = paths.map((path) =>
+      readFileSync(`${PUBLIC_DIR}${path}`, "utf8"),
+    );
+    expect(new Set(drawings).size).toBe(CONTROLS.length);
+  });
 });
 
 describe("desktop-catalog module", () => {

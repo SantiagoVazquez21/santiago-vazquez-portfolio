@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { DICTIONARIES } from "@/i18n";
 import type { Dictionary } from "@/i18n/types";
 import { DESKTOP_ICONS, type IconId } from "@/lib/desktop-catalog";
-import { iconTexts } from "@/lib/desktop-icons";
+import { iconGlyph, iconTexts } from "@/lib/desktop-icons";
 
 // Every text differs from the real ones, so a text hand-written inside iconTexts
 // fails here even when it matches the real dictionary.
@@ -87,4 +87,13 @@ describe("iconTexts", () => {
       ariaLabel: "Resume, download PDF",
     });
   });
+});
+
+describe("iconGlyph", () => {
+  it.each(DESKTOP_ICONS.map((entry) => [entry.id, entry.glyphSrc] as const))(
+    "%s: the glyph is the catalog one (RF-3, RF-10)",
+    (id, glyphSrc) => {
+      expect(iconGlyph(id)).toBe(glyphSrc);
+    },
+  );
 });

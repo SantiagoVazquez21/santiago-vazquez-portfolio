@@ -1,5 +1,5 @@
 import type { Dictionary } from "@/i18n/types";
-import type { IconId } from "@/lib/desktop-catalog";
+import { DESKTOP_ICONS, type IconId } from "@/lib/desktop-catalog";
 
 type DesktopTexts = Dictionary["desktop"];
 type ActionNameKey = keyof DesktopTexts["actionNames"];
@@ -27,4 +27,17 @@ export function iconTexts(id: IconId, texts: DesktopTexts): IconTexts {
     label: texts.labels[id],
     ariaLabel: actionKey === null ? null : texts.actionNames[actionKey],
   };
+}
+
+const GLYPHS: ReadonlyMap<IconId, string> = new Map(
+  DESKTOP_ICONS.map((entry) => [entry.id, entry.glyphSrc]),
+);
+
+// Small glyph for the title bar and the taskbar window button (RF-3, RF-10).
+export function iconGlyph(id: IconId): string {
+  const glyph = GLYPHS.get(id);
+  if (glyph === undefined) {
+    throw new Error(`The catalog has no entry for icon "${id}".`);
+  }
+  return glyph;
 }

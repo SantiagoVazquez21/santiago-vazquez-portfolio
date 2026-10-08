@@ -37,6 +37,14 @@ const TEST_DICTIONARY: Dictionary = {
       linkedin: "Test linkedin action",
     },
   },
+  windows: {
+    minimize: "Test minimize",
+    maximize: "Test maximize",
+    restore: "Test restore",
+    close: "Test close",
+    placeholder: "Test placeholder",
+    taskbarGroup: "Test taskbar group",
+  },
   switcher: {
     esCode: "T-ES",
     enCode: "T-EN",

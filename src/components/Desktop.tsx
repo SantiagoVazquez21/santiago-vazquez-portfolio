@@ -13,6 +13,7 @@ import {
   DESKTOP_ICONS,
   type DesktopIconEntry,
   type IconId,
+  type WindowId,
 } from "@/lib/desktop-catalog";
 import { iconTexts } from "@/lib/desktop-icons";
 import {
@@ -26,19 +27,33 @@ import {
   type Selection,
   type SelectionEvent,
 } from "@/lib/desktop-selection";
+import { isWindowId } from "@/lib/window-manager";
 
 type DesktopProps = {
   home: Dictionary["home"];
   texts: Dictionary["desktop"];
+  // Owned by DesktopShell, which moves focus back to an icon after closing a window (RF-8).
+  iconElements: Map<IconId, HTMLElement>;
+  // Fullscreen windows cover the icons: Tab and screen readers skip them (RF-12).
+  inert: boolean;
+  onOpenWindow: (id: WindowId) => void;
+  // Selecting an icon or clicking the background leaves every window inactive (RF-4).
+  onSelect: () => void;
 };
 
 // The area scrolls on its own so the taskbar, outside it, never covers the last icon (plan, D3).
+// It fills <main> under the window layer, so windows never scroll with the icons (003 plan, D5).
 // The title stays in the flow above the grid, never on top of the icons (plan, decision (a)).
 // The grid's minimum column is capped at 100% so a single column still fits at high zoom (RF-14).
-export function Desktop({ home, texts }: DesktopProps) {
+export function Desktop({
+  home,
+  texts,
+  iconElements,
+  inert,
+  onOpenWindow,
+  onSelect,
+}: DesktopProps) {
   const [selection, setSelection] = useState<Selection>(null);
-  // Refs instead of closest() or data-* attributes, which the text lint would flag (plan, D10).
-  const iconElements = useRef(new Map<IconId, HTMLElement>());
   // Neither changes what is painted, so they live in refs, not in state.
   const openLog = useRef<OpenLog>({});
   // Read on pointerdown because Safari gives click no pointerType (plan, D6).
@@ -46,14 +61,16 @@ export function Desktop({ home, texts }: DesktopProps) {
 
   function updateSelection(event: SelectionEvent) {
     setSelection((current) => nextSelection(current, event));
+    onSelect();
   }
 
+  // A Map of elements instead of closest() or data-* attributes, which the text lint would flag (plan, D10).
   function registerIcon(id: IconId) {
     return (element: HTMLElement | null) => {
       if (element === null) {
-        iconElements.current.delete(id);
+        iconElements.delete(id);
       } else {
-        iconElements.current.set(id, element);
+        iconElements.set(id, element);
       }
     };
   }
@@ -79,8 +96,11 @@ export function Desktop({ home, texts }: DesktopProps) {
       event.preventDefault();
       return;
     }
-    // Window icons have nothing to open until spec 003 (RF-9).
-    if (entry.href === null) return;
+    // Window icons open their window, after the selection above left all inactive (003 RF-1, RF-4).
+    if (entry.href === null) {
+      if (isWindowId(entry.id)) onOpenWindow(entry.id);
+      return;
+    }
     const now = Date.now();
     // Swallows the second tap of a double tap, per icon so another icon still opens (D5).
     if (!canOpen(openLog.current, entry.id, now)) {
@@ -110,11 +130,11 @@ export function Desktop({ home, texts }: DesktopProps) {
   }
 
   // Any point of the area outside an icon counts as background, title and grid gaps included.
-  // The taskbar lives outside <main>, so its clicks never reach this handler (RF-5).
+  // The taskbar and the window layer are outside this area, so their clicks never reach it (RF-5).
   function handleAreaClick(event: MouseEvent<HTMLElement>) {
     const target = event.target;
     if (!(target instanceof Node)) return;
-    const icons = [...iconElements.current.values()];
+    const icons = [...iconElements.values()];
     if (icons.some((icon) => icon.contains(target))) return;
     updateSelection({ target: null });
     const active = document.activeElement;
@@ -124,9 +144,10 @@ export function Desktop({ home, texts }: DesktopProps) {
   }
 
   return (
-    <main
+    <div
       onClick={handleAreaClick}
-      className="min-h-0 flex-1 overflow-y-auto bg-[#008080] px-4 py-6 text-white"
+      inert={inert}
+      className="absolute inset-0 overflow-y-auto bg-[#008080] px-4 py-6 text-white"
     >
       <div className="text-center break-words">
         <h1 className="text-2xl font-bold">{home.name}</h1>
@@ -152,6 +173,6 @@ export function Desktop({ home, texts }: DesktopProps) {
           />
         ))}
       </div>
-    </main>
+    </div>
   );
 }

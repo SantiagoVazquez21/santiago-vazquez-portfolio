@@ -28,6 +28,14 @@ export const en = {
       linkedin: "LinkedIn, opens in a new tab",
     },
   },
+  windows: {
+    minimize: "Minimize",
+    maximize: "Maximize",
+    restore: "Restore",
+    close: "Close",
+    placeholder: "Content coming soon.",
+    taskbarGroup: "Open windows",
+  },
   switcher: {
     esCode: "ES",
     enCode: "EN",

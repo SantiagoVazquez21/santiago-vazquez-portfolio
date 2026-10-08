@@ -25,6 +25,14 @@ export type Dictionary = {
       linkedin: string;
     };
   };
+  windows: {
+    minimize: string;
+    maximize: string;
+    restore: string;
+    close: string;
+    placeholder: string;
+    taskbarGroup: string;
+  };
   switcher: {
     esCode: string;
     enCode: string;

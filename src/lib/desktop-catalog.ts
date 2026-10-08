@@ -1,18 +1,13 @@
-export type IconId =
-  | "projects"
-  | "about"
-  | "experience"
-  | "skills"
-  | "education"
-  | "contact"
-  | "resume"
-  | "github"
-  | "linkedin";
+// At most one window per window icon (spec 003, "Ventana").
+export type WindowId =
+  "projects" | "about" | "experience" | "skills" | "education" | "contact";
+
+export type IconId = WindowId | "resume" | "github" | "linkedin";
 
 export type DesktopIconEntry = {
   id: IconId;
   glyphSrc: string;
-  // null marks a window icon: it only gets selected until spec 003 (RF-9).
+  // null marks a window icon: it opens its window instead of a destination (spec 003, RF-1).
   href: string | null;
   opensNewTab: boolean;
   downloadName: string | null;
@@ -86,3 +81,22 @@ export const DESKTOP_ICONS: readonly DesktopIconEntry[] = [
     downloadName: null,
   },
 ];
+
+// Order of RF-2; a test checks it matches the icons with a null href.
+export const WINDOW_IDS: readonly WindowId[] = [
+  "projects",
+  "about",
+  "experience",
+  "skills",
+  "education",
+  "contact",
+];
+
+export type WindowControl = "minimize" | "maximize" | "restore" | "close";
+
+export const WINDOW_CONTROL_GLYPHS: Readonly<Record<WindowControl, string>> = {
+  minimize: "/icons/window-minimize.svg",
+  maximize: "/icons/window-maximize.svg",
+  restore: "/icons/window-restore.svg",
+  close: "/icons/window-close.svg",
+};
