@@ -8,6 +8,8 @@ export type Dictionary = {
   desktop: {
     groupName: string;
     clockName: string;
+    wallpaperPause: string;
+    wallpaperResume: string;
     labels: {
       projects: string;
       about: string;

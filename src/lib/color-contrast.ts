@@ -11,13 +11,19 @@ function channelLuminance(channel: number): number {
   return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
 }
 
-function relativeLuminance(color: string): number {
+function parseHex(color: string): [number, number, number] {
   if (!HEX_COLOR.test(color)) {
     throw new Error(`Expected a #RRGGBB color, got "${color}"`);
   }
-  const red = Number.parseInt(color.slice(1, 3), 16);
-  const green = Number.parseInt(color.slice(3, 5), 16);
-  const blue = Number.parseInt(color.slice(5, 7), 16);
+  return [
+    Number.parseInt(color.slice(1, 3), 16),
+    Number.parseInt(color.slice(3, 5), 16),
+    Number.parseInt(color.slice(5, 7), 16),
+  ];
+}
+
+function relativeLuminance(color: string): number {
+  const [red, green, blue] = parseHex(color);
   return (
     0.2126 * channelLuminance(red) +
     0.7152 * channelLuminance(green) +
@@ -41,4 +47,24 @@ export function logoFill(
   return contrastRatio(brandHex, background) >= NON_TEXT_CONTRAST_MIN
     ? brandHex.toUpperCase()
     : LOGO_FALLBACK;
+}
+
+// Solid color seen when a translucent backing is painted over the wallpaper (RF-11).
+export function blendOver(
+  foreground: string,
+  alpha: number,
+  background: string,
+): string {
+  if (!(alpha >= 0 && alpha <= 1)) {
+    throw new Error(`Expected an alpha between 0 and 1, got ${alpha}`);
+  }
+  const front = parseHex(foreground);
+  const back = parseHex(background);
+  const channels = front.map((channel, index) =>
+    Math.round(alpha * channel + (1 - alpha) * back[index]),
+  );
+  return `#${channels
+    .map((channel) => channel.toString(16).padStart(2, "0"))
+    .join("")
+    .toUpperCase()}`;
 }

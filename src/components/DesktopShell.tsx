@@ -5,6 +5,8 @@ import { AppWindow } from "@/components/AppWindow";
 import { Desktop } from "@/components/Desktop";
 import { Taskbar } from "@/components/Taskbar";
 import { TaskbarWindowButtons } from "@/components/TaskbarWindowButtons";
+import { Wallpaper } from "@/components/Wallpaper";
+import { WallpaperToggle } from "@/components/WallpaperToggle";
 import { WindowContent } from "@/components/WindowContent";
 import type { PortfolioContent } from "@/content/types";
 import type { Dictionary } from "@/i18n/types";
@@ -82,6 +84,9 @@ export function DesktopShell({
   contactTexts,
 }: DesktopShellProps) {
   const [windows, setWindows] = useState<WindowsState>(NO_WINDOWS);
+  // Shared by the wallpaper and its tray button; it lives with the page and is never stored,
+  // apart from the Skills pause (spec 007, RF-9).
+  const [wallpaperPaused, setWallpaperPaused] = useState(false);
   // Null until the first measurement; never read before hydration (plan, section 6).
   const [desktop, setDesktop] = useState<Size | null>(null);
   // A state-held Map keeps one instance across renders without reading a ref while rendering.
@@ -232,6 +237,8 @@ export function DesktopShell({
   return (
     <div className="flex h-dvh flex-col">
       <main ref={mainRef} className="relative min-h-0 flex-1">
+        {/* First, so it stays under the icons and the windows (spec 007, RF-2). */}
+        <Wallpaper paused={wallpaperPaused} />
         <Desktop
           home={home}
           texts={desktopTexts}
@@ -280,6 +287,14 @@ export function DesktopShell({
         switcherTexts={switcherTexts}
         clockName={desktopTexts.clockName}
         compactTray={windows.windows.length > 0}
+        trayButton={
+          <WallpaperToggle
+            paused={wallpaperPaused}
+            pauseName={desktopTexts.wallpaperPause}
+            resumeName={desktopTexts.wallpaperResume}
+            onToggle={() => setWallpaperPaused((current) => !current)}
+          />
+        }
       >
         {/* Without open windows the taskbar stays exactly as in spec 002 (RF-13). */}
         {windows.windows.length > 0 && (

@@ -5,3 +5,33 @@
 @source not "../../CLAUDE.md";
 @source not "../../README.md";
 @source not "../../.agents";
+
+@theme {
+  --animate-clouds: clouds-drift 200s linear infinite;
+  @keyframes clouds-drift {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-1600px);
+    }
+  }
+}
+
+@layer base {
+  html {
+    cursor:
+      url("/cursors/arrow.svg") 0 0,
+      auto;
+  }
+  a[href],
+  button:not(:disabled) {
+    cursor:
+      url("/cursors/hand.svg") 7 0,
+      pointer;
+  }
+  input,
+  textarea {
+    cursor: text;
+  }
+}

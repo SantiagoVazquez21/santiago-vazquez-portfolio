@@ -20,6 +20,8 @@ const TEST_DICTIONARY: Dictionary = {
   desktop: {
     groupName: "Test group name",
     clockName: "Test clock name",
+    wallpaperPause: "Test wallpaper pause",
+    wallpaperResume: "Test wallpaper resume",
     labels: {
       projects: "Test projects",
       about: "Test about",

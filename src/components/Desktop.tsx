@@ -147,9 +147,9 @@ export function Desktop({
     <div
       onClick={handleAreaClick}
       inert={inert}
-      className="absolute inset-0 overflow-y-auto bg-[#008080] px-4 py-6 text-white"
+      className="absolute inset-0 overflow-y-auto px-4 py-6 text-white"
     >
-      <div className="text-center break-words">
+      <div className="mx-auto w-fit max-w-full bg-[#0A246A]/75 px-3 py-1 text-center break-words text-shadow-[1px_1px_0_#000]">
         <h1 className="text-2xl font-bold">{home.name}</h1>
         <p>{home.role}</p>
       </div>

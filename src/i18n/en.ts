@@ -11,6 +11,8 @@ export const en = {
   desktop: {
     groupName: "Desktop",
     clockName: "Local time",
+    wallpaperPause: "Pause wallpaper",
+    wallpaperResume: "Resume wallpaper",
     labels: {
       projects: "Projects",
       about: "About me",

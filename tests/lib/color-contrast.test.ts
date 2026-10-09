@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  blendOver,
   contrastRatio,
   LOGO_FALLBACK,
   logoFill,
@@ -75,4 +76,38 @@ describe("logoFill", () => {
   it("throws on an invalid brand color", () => {
     expect(() => logoFill("F7DF1E")).toThrow();
   });
+});
+
+describe("blendOver", () => {
+  it("returns the foreground with alpha 1", () => {
+    expect(blendOver("#0A246A", 1, "#FFFFFF")).toBe("#0A246A");
+  });
+
+  it("returns the background with alpha 0", () => {
+    expect(blendOver("#0A246A", 0, "#A9D3F5")).toBe("#A9D3F5");
+  });
+
+  it("paints black at 0.5 over white as #808080", () => {
+    expect(blendOver("#000000", 0.5, "#FFFFFF")).toBe("#808080");
+  });
+
+  it("paints #0A246A at 0.75 over white as #475B8F (RF-11)", () => {
+    expect(blendOver("#0A246A", 0.75, "#FFFFFF")).toBe("#475B8F");
+  });
+
+  it("returns an uppercase #RRGGBB color", () => {
+    expect(blendOver("#0a246a", 0.75, "#ffffff")).toBe("#475B8F");
+  });
+
+  it("throws on a color that is not #RRGGBB", () => {
+    expect(() => blendOver("#FFF", 0.5, "#FFFFFF")).toThrow();
+    expect(() => blendOver("#FFFFFF", 0.5, "#FFF")).toThrow();
+  });
+
+  it.each([-0.1, 1.1, Number.NaN])(
+    "throws on an alpha outside [0, 1] (%s)",
+    (alpha) => {
+      expect(() => blendOver("#000000", alpha, "#FFFFFF")).toThrow();
+    },
+  );
 });

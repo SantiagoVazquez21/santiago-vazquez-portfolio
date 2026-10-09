@@ -14,6 +14,8 @@ type TaskbarProps = {
   // True only with an open window: six icon-only buttons then fit beside the tray at
   // 320 px, and without windows the tray keeps its spec 002 padding (003 plan, section 9).
   compactTray?: boolean;
+  // Placed after the switcher, so Tab reaches it last in the taskbar (spec 007, RF-8).
+  trayButton?: ReactNode;
 };
 
 // The name and role are plain text: the page's only h1 is the desktop title (RF-1, RF-11).
@@ -30,6 +32,7 @@ export function Taskbar({
   clockName,
   children,
   compactTray = false,
+  trayButton,
 }: TaskbarProps) {
   return (
     <footer className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-1 border-t-2 border-t-white bg-[#C0C0C0] px-2 py-1 text-black">
@@ -49,6 +52,7 @@ export function Taskbar({
           <nav>
             <LanguageSwitcher lang={lang} texts={switcherTexts} />
           </nav>
+          {trayButton}
           <Clock lang={lang} name={clockName} />
         </div>
       </div>

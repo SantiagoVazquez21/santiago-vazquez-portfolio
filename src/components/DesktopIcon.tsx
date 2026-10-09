@@ -21,9 +21,12 @@ type DesktopIconProps = {
 
 // Native <a>/<button> give the role, the name and Enter for free (plan, D1). select-none keeps
 // a double click from highlighting the label, and draggable={false} keeps a drag from carrying
-// the link or the image away, since moving icons is out of scope. The white focus outline
-// (4.8:1 on the teal) wraps the whole icon, so keyboard focus reads apart from the selected
-// label (RF-10); max-w-full lets the icon shrink with the grid at high zoom (RF-14).
+// the link or the image away, since moving icons is out of scope. The focus ring wraps the
+// whole icon, so keyboard focus reads apart from the selected label (RF-10). It is black-white-
+// black (white outline over a black shadow) because no single color reaches 3:1 on both the sky
+// and a cloud; one of the two always does (007 RF-12). The unselected label sits on translucent
+// navy so white text keeps 4.5:1 even over a white cloud (007 RF-11); max-w-full lets the icon
+// shrink with the grid at high zoom (RF-14).
 export function DesktopIcon({
   entry,
   texts,
@@ -50,7 +53,7 @@ export function DesktopIcon({
         className={
           selected
             ? "max-w-full border border-dotted border-white bg-[#000080] px-1 break-words text-white"
-            : "max-w-full border border-transparent px-1 break-words"
+            : "max-w-full border border-transparent bg-[#0A246A]/75 px-1 break-words"
         }
       >
         {texts.label}
@@ -68,7 +71,7 @@ export function DesktopIcon({
         onClick={onClick}
         onDoubleClick={onDoubleClick}
         onKeyDown={onKeyDown}
-        className="flex w-24 max-w-full flex-col items-center gap-1 justify-self-center p-1 text-center text-sm select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+        className="flex w-24 max-w-full flex-col items-center gap-1 justify-self-center p-1 text-center text-sm select-none focus-visible:outline-2 focus-visible:shadow-[0_0_0_6px_#000000] focus-visible:outline-offset-2 focus-visible:outline-white"
       >
         {content}
       </button>
@@ -90,7 +93,7 @@ export function DesktopIcon({
       onClick={onClick}
       onDoubleClick={onDoubleClick}
       onKeyDown={onKeyDown}
-      className="flex w-24 max-w-full flex-col items-center gap-1 justify-self-center p-1 text-center text-sm select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+      className="flex w-24 max-w-full flex-col items-center gap-1 justify-self-center p-1 text-center text-sm select-none focus-visible:outline-2 focus-visible:shadow-[0_0_0_6px_#000000] focus-visible:outline-offset-2 focus-visible:outline-white"
     >
       {content}
     </a>

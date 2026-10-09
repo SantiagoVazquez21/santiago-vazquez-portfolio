@@ -11,6 +11,8 @@ export const es = {
   desktop: {
     groupName: "Escritorio",
     clockName: "Hora local",
+    wallpaperPause: "Pausar fondo",
+    wallpaperResume: "Reanudar fondo",
     labels: {
       projects: "Proyectos",
       about: "Sobre mí",
