@@ -1,9 +1,11 @@
 import type {
   CreditedLogoId,
+  FeatureId,
   FolderId,
   JobId,
   LanguageId,
   ProjectId,
+  ProjectTagId,
   SkillId,
   StudyId,
   TaskId,
@@ -14,8 +16,17 @@ export type PortfolioContent = {
   about: { profile: string };
   projects: Record<
     ProjectId,
-    { name: string; subtitle: string; description: string }
+    {
+      name: string;
+      tagline: string;
+      description: string;
+      contribution: string;
+      // Each project shows only the features of its featureIds in the catalog.
+      features: Record<FeatureId, string>;
+    }
   >;
+  // Shared across projects: two projects can both be "Desarrollado en equipo".
+  projectTags: Record<ProjectTagId, string>;
   // Brand names, written the same in es and en.
   technologies: Record<TechnologyId, string>;
   jobs: Record<

@@ -56,6 +56,20 @@ describe.each(LANGS)("CONTENT.%s keys follow the catalog", (lang) => {
     );
   });
 
+  it("gives each project exactly its featureIds, in order", () => {
+    for (const project of PROJECTS) {
+      expect(Object.keys(content.projects[project.id].features)).toEqual(
+        project.featureIds,
+      );
+    }
+  });
+
+  it("lists project tags in the order the projects use them", () => {
+    expect(Object.keys(content.projectTags)).toEqual(
+      unique(PROJECTS.flatMap((project) => project.tagIds)),
+    );
+  });
+
   it("lists technologies in the order the projects use them", () => {
     expect(Object.keys(content.technologies)).toEqual(
       unique(PROJECTS.flatMap((project) => project.technologyIds)),
@@ -94,6 +108,68 @@ describe.each(LANGS)("CONTENT.%s keys follow the catalog", (lang) => {
     expect(Object.keys(content.skills)).toEqual(
       SKILL_FOLDERS.flatMap((folder) => folder.skillIds),
     );
+  });
+});
+
+// Annex A of spec 008, letter by letter.
+const GESTION_PRO_ANNEX_A = {
+  es: {
+    name: "Gestion Pro",
+    tagline: "Sistema de gestión para taller electrónico automotriz",
+    description:
+      "Aplicación de escritorio para la gestión completa de un laboratorio de electrónica automotriz. Desarrollada en equipo aplicando arquitectura en capas.",
+    contribution:
+      "Diseñé el sistema de interfaz (tema y estilos) y desarrollé las pantallas de login, clientes, órdenes de trabajo, ventas con control de stock, cotizaciones y garantías, el modo oscuro y la documentación de diseño.",
+    features: {
+      customers: "Gestión de clientes",
+      workOrders: "Órdenes de trabajo: módulos, cerrajería e instalaciones",
+      sales: "Ventas de insumos con control de stock",
+      quotes: "Cotizaciones",
+      warranties: "Garantías",
+    },
+  },
+  en: {
+    name: "Gestion Pro",
+    tagline: "Management system for an automotive electronics workshop",
+    description:
+      "Desktop application for the end-to-end management of an automotive electronics lab. Developed as a team using a layered architecture.",
+    contribution:
+      "Designed the interface system (theme and styles) and built the screens for login, customers, work orders, sales with inventory control, quotes and warranties, as well as the dark mode and the design documentation.",
+    features: {
+      customers: "Customer management",
+      workOrders:
+        "Work orders: electronic modules, automotive locksmithing and installations",
+      sales: "Parts and supplies sales with inventory control",
+      quotes: "Quotes",
+      warranties: "Warranties",
+    },
+  },
+} as const;
+
+const PROJECT_TAGS_ANNEX_A = {
+  es: { teamWork: "Desarrollado en equipo", desktopApp: "App de escritorio" },
+  en: { teamWork: "Developed as a team", desktopApp: "Desktop app" },
+} as const;
+
+describe.each(LANGS)("CONTENT.%s projects (spec 008, annex A)", (lang) => {
+  it("matches annex A for Gestion Pro", () => {
+    expect(CONTENT[lang].projects.gestionPro).toEqual(
+      GESTION_PRO_ANNEX_A[lang],
+    );
+  });
+
+  it("matches annex A for the project tags", () => {
+    expect(CONTENT[lang].projectTags).toEqual(PROJECT_TAGS_ANNEX_A[lang]);
+  });
+});
+
+describe("project names (RF-10)", () => {
+  it("writes every project name the same in es and en", () => {
+    for (const project of PROJECTS) {
+      expect(CONTENT.en.projects[project.id].name).toBe(
+        CONTENT.es.projects[project.id].name,
+      );
+    }
   });
 });
 

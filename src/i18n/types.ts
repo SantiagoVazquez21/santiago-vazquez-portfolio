@@ -44,6 +44,11 @@ export type Dictionary = {
     pause: string;
     resume: string;
     folderGroup: string;
+    projectGroup: string;
+    projectOpenHint: string;
+    projectTags: string;
+    contribution: string;
+    features: string;
     logoCredit: string;
     logoLicenseName: string;
   };

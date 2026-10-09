@@ -47,6 +47,11 @@ export const es = {
     pause: "Pausar",
     resume: "Reanudar",
     folderGroup: "Carpetas de habilidades",
+    projectGroup: "Tarjetas de proyectos",
+    projectOpenHint: "Abrí un proyecto con doble clic, Enter o un toque.",
+    projectTags: "Contexto",
+    contribution: "Mi aporte",
+    features: "Funcionalidades principales",
     logoCredit: "Logo de {brand} por {author} (color aplicado),",
     logoLicenseName:
       "Licencia {license} del logo de {brand}, se abre en una pestaña nueva",

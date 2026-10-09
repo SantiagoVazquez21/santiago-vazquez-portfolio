@@ -20,14 +20,14 @@ import type { PortfolioContent } from "@/content/types";
 import type { Dictionary } from "@/i18n/types";
 import { INTENT, clickIntent, keyIntent } from "@/lib/desktop-selection";
 import {
-  SKILLS_START,
+  EXPLORER_START,
   clearSelection,
   goBack,
   isBackKey,
-  openFolder,
-  selectFolder,
-  type SkillsView,
-} from "@/lib/skills-explorer";
+  openItem,
+  selectItem,
+  type ExplorerView,
+} from "@/lib/explorer";
 
 type SkillsExplorerProps = {
   content: PortfolioContent;
@@ -39,7 +39,7 @@ type SkillsExplorerProps = {
 // The root fills the rest of the body, so a click on any blank part of the folder view
 // clears the selection, like the desktop background (RF-8).
 export function SkillsExplorer({ content, texts }: SkillsExplorerProps) {
-  const [view, setView] = useState<SkillsView>(SKILLS_START);
+  const [view, setView] = useState<ExplorerView<FolderId>>(EXPLORER_START);
   // Kept across folders and minimizing, reset by closing the window (RF-9, plan D10).
   const [paused, setPaused] = useState(false);
   // A state-held Map keeps one instance across renders without reading a ref while rendering.
@@ -55,7 +55,7 @@ export function SkillsExplorer({ content, texts }: SkillsExplorerProps) {
   useEffect(() => {
     if (!pendingFocus.current) return;
     pendingFocus.current = false;
-    if (view.folder !== null) {
+    if (view.open !== null) {
       backButton.current?.focus();
     } else if (view.selected !== null) {
       folderElements.get(view.selected)?.focus();
@@ -63,7 +63,7 @@ export function SkillsExplorer({ content, texts }: SkillsExplorerProps) {
   });
 
   // The same object back means the navigation was refused, so the focus stays put.
-  function navigate(next: SkillsView) {
+  function navigate(next: ExplorerView<FolderId>) {
     if (next === view) return;
     setView(next);
     pendingFocus.current = true;
@@ -81,7 +81,7 @@ export function SkillsExplorer({ content, texts }: SkillsExplorerProps) {
   }
 
   function select(id: FolderId) {
-    setView((current) => selectFolder(current, id));
+    setView((current) => selectItem(current, id));
   }
 
   function handleFolderPointerDown(event: PointerEvent<HTMLElement>) {
@@ -91,7 +91,7 @@ export function SkillsExplorer({ content, texts }: SkillsExplorerProps) {
   // A mouse click only selects; a tap, Enter or the click replayed by a double click opens (RF-8).
   function handleFolderClick(id: FolderId, event: MouseEvent<HTMLElement>) {
     if (clickIntent(lastPointerType.current, event.detail) === INTENT.open) {
-      navigate(openFolder(view, id, Date.now()));
+      navigate(openItem(view, id, Date.now()));
     } else {
       select(id);
     }
@@ -138,7 +138,7 @@ export function SkillsExplorer({ content, texts }: SkillsExplorerProps) {
   // A click made in a folder's view never clears: the click on "Back" bubbles here after
   // going back, and the queued state would lose the folder it just selected (RF-10).
   function handleRootClick(event: MouseEvent<HTMLElement>) {
-    if (view.folder !== null) return;
+    if (view.open !== null) return;
     const target = event.target;
     if (!(target instanceof Node)) return;
     const folders = [...folderElements.values()];
@@ -147,7 +147,7 @@ export function SkillsExplorer({ content, texts }: SkillsExplorerProps) {
   }
 
   // undefined in the folder view, since no folder has a null id.
-  const openEntry = SKILL_FOLDERS.find((folder) => folder.id === view.folder);
+  const openEntry = SKILL_FOLDERS.find((folder) => folder.id === view.open);
 
   return (
     <div

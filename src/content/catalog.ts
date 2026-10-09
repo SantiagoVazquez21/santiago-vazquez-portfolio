@@ -6,6 +6,12 @@ export type ProjectId = "gestionPro";
 export type TechnologyId =
   "csharp" | "dotnet" | "winforms" | "mysql" | "postgresql";
 
+export type ProjectTagId = "teamWork" | "desktopApp";
+
+// Unique across projects, like TaskId: a new project brings its own feature ids.
+export type FeatureId =
+  "customers" | "workOrders" | "sales" | "quotes" | "warranties";
+
 export type JobId = "municipalInternship";
 
 // Unique across jobs, so a new job brings its own task ids.
@@ -46,8 +52,11 @@ export type SkillId =
 
 export type ProjectEntry = {
   id: ProjectId;
+  glyph: string;
   repositoryUrl: string;
   technologyIds: readonly TechnologyId[];
+  tagIds: readonly ProjectTagId[];
+  featureIds: readonly FeatureId[];
 };
 
 export type JobEntry = { id: JobId; taskIds: readonly TaskId[] };
@@ -59,8 +68,11 @@ export type SkillFolderEntry = { id: FolderId; skillIds: readonly SkillId[] };
 export const PROJECTS: readonly ProjectEntry[] = [
   {
     id: "gestionPro",
+    glyph: "/projects/gestion-pro.svg",
     repositoryUrl: "https://github.com/ronnin47/sistemaDeGestionAutomotriz",
     technologyIds: ["csharp", "dotnet", "winforms", "mysql", "postgresql"],
+    tagIds: ["teamWork", "desktopApp"],
+    featureIds: ["customers", "workOrders", "sales", "quotes", "warranties"],
   },
 ];
 

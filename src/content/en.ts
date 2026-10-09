@@ -8,10 +8,24 @@ export const en = {
   projects: {
     gestionPro: {
       name: "Gestion Pro",
-      subtitle: "Management system for an automotive electronics workshop",
+      tagline: "Management system for an automotive electronics workshop",
       description:
-        "Desktop application for the end-to-end management of an automotive electronics lab. It handles customers, work orders (electronic modules, automotive locksmithing and installations), parts and supplies sales with inventory control, quotes and warranties. Developed as a team using a layered architecture.",
+        "Desktop application for the end-to-end management of an automotive electronics lab. Developed as a team using a layered architecture.",
+      contribution:
+        "Designed the interface system (theme and styles) and built the screens for login, customers, work orders, sales with inventory control, quotes and warranties, as well as the dark mode and the design documentation.",
+      features: {
+        customers: "Customer management",
+        workOrders:
+          "Work orders: electronic modules, automotive locksmithing and installations",
+        sales: "Parts and supplies sales with inventory control",
+        quotes: "Quotes",
+        warranties: "Warranties",
+      },
     },
+  },
+  projectTags: {
+    teamWork: "Developed as a team",
+    desktopApp: "Desktop app",
   },
   technologies: {
     csharp: "C#",

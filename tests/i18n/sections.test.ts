@@ -6,7 +6,7 @@ import { fillTemplate } from "@/lib/text-template";
 
 const LANGS = ["es", "en"] as const;
 
-describe("sections texts (spec 004 annex B, spec 006 annex A)", () => {
+describe("sections texts (spec 004 annex B, spec 006 annex A, spec 008 annex B)", () => {
   it("match the annexes in Spanish", () => {
     expect(DICTIONARIES.es.sections).toEqual({
       technologies: "Tecnologías",
@@ -18,6 +18,11 @@ describe("sections texts (spec 004 annex B, spec 006 annex A)", () => {
       pause: "Pausar",
       resume: "Reanudar",
       folderGroup: "Carpetas de habilidades",
+      projectGroup: "Tarjetas de proyectos",
+      projectOpenHint: "Abrí un proyecto con doble clic, Enter o un toque.",
+      projectTags: "Contexto",
+      contribution: "Mi aporte",
+      features: "Funcionalidades principales",
       logoCredit: "Logo de {brand} por {author} (color aplicado),",
       logoLicenseName:
         "Licencia {license} del logo de {brand}, se abre en una pestaña nueva",
@@ -35,10 +40,27 @@ describe("sections texts (spec 004 annex B, spec 006 annex A)", () => {
       pause: "Pause",
       resume: "Resume",
       folderGroup: "Skill folders",
+      projectGroup: "Project cards",
+      projectOpenHint: "Open a project with a double-click, Enter or a tap.",
+      projectTags: "Context",
+      contribution: "My contribution",
+      features: "Main features",
       logoCredit: "{brand} logo by {author} (color applied),",
       logoLicenseName:
         "{license} license for the {brand} logo, opens in a new tab",
     });
+  });
+});
+
+describe("repository name template (spec 008 RF-6)", () => {
+  it("fills in with Gestion Pro as annex B shows", () => {
+    const values = { project: "Gestion Pro" };
+    expect(fillTemplate(DICTIONARIES.es.sections.repositoryName, values)).toBe(
+      "Repositorio de Gestion Pro, se abre en una pestaña nueva",
+    );
+    expect(fillTemplate(DICTIONARIES.en.sections.repositoryName, values)).toBe(
+      "Gestion Pro repository, opens in a new tab",
+    );
   });
 });
 

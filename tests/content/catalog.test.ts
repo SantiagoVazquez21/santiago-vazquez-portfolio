@@ -1,5 +1,5 @@
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { join, relative, sep } from "node:path";
 import { describe, expect, it } from "vitest";
 import * as catalog from "@/content/catalog";
 import {
@@ -12,11 +12,14 @@ import {
   SKILL_FOLDERS,
   SKILL_GLYPHS,
   STUDIES,
+  type FeatureId,
   type FolderId,
+  type ProjectTagId,
   type SkillId,
   type TechnologyId,
 } from "@/content/catalog";
 import { logoFill } from "@/lib/color-contrast";
+import { expectSafeSvg, rootAttributes } from "../lib/svg-checks";
 
 // Folders and skills in the order of annex A of spec 004.
 const EXPECTED_FOLDERS: readonly {
@@ -45,6 +48,17 @@ const GESTION_PRO_TECHNOLOGIES: readonly TechnologyId[] = [
   "winforms",
   "mysql",
   "postgresql",
+];
+
+const GESTION_PRO_TAGS: readonly ProjectTagId[] = ["teamWork", "desktopApp"];
+
+// Order of annex A of spec 008.
+const GESTION_PRO_FEATURES: readonly FeatureId[] = [
+  "customers",
+  "workOrders",
+  "sales",
+  "quotes",
+  "warranties",
 ];
 
 describe("SKILL_FOLDERS", () => {
@@ -80,13 +94,45 @@ describe("PROJECTS", () => {
     expect(PROJECTS.map((project) => project.id)).toEqual(["gestionPro"]);
   });
 
-  it("keeps only keys, the repository URL and technology ids (no visible text)", () => {
+  it("keeps only ids, the glyph and the repository URL (no visible text)", () => {
     for (const project of PROJECTS) {
       expect(Object.keys(project).sort()).toEqual([
+        "featureIds",
+        "glyph",
         "id",
         "repositoryUrl",
+        "tagIds",
         "technologyIds",
       ]);
+    }
+  });
+
+  it("tags Gestion Pro as team work and a desktop app (spec 008, RF-2)", () => {
+    expect(PROJECTS[0].tagIds).toEqual(GESTION_PRO_TAGS);
+  });
+
+  it("gives Gestion Pro its features in the order of annex A (spec 008, RF-5)", () => {
+    expect(PROJECTS[0].featureIds).toEqual(GESTION_PRO_FEATURES);
+  });
+
+  it("never repeats a feature id across projects", () => {
+    const featureIds = PROJECTS.flatMap((project) => project.featureIds);
+    expect(new Set(featureIds).size).toBe(featureIds.length);
+  });
+
+  it("draws Gestion Pro with its own icon (spec 008, RF-11)", () => {
+    expect(PROJECTS[0].glyph).toBe("/projects/gestion-pro.svg");
+  });
+
+  it("points every project glyph to an SVG under /projects/", () => {
+    for (const { id, glyph } of PROJECTS) {
+      expect(glyph, id).toMatch(/^\/projects\/[a-z0-9-]+\.svg$/);
+    }
+  });
+
+  it("points every project glyph to a file that exists in public/", () => {
+    for (const { id, glyph } of PROJECTS) {
+      expect(existsSync(join(process.cwd(), "public", glyph)), id).toBe(true);
     }
   });
 
@@ -318,6 +364,65 @@ describe("own drawings", () => {
   it("are all different from each other", () => {
     const drawings = OWN_DRAWINGS.map(readPublic);
     expect(new Set(drawings).size).toBe(OWN_DRAWINGS.length);
+  });
+});
+
+// Every SVG under public/, so a new drawing is compared with all of them (spec 008, RNF-4).
+function publicSvgs(directory = join(process.cwd(), "public")): string[] {
+  return readdirSync(directory).flatMap((entry) => {
+    const path = join(directory, entry);
+    if (statSync(path).isDirectory()) return publicSvgs(path);
+    return entry.endsWith(".svg")
+      ? [
+          "/" +
+            relative(join(process.cwd(), "public"), path).split(sep).join("/"),
+        ]
+      : [];
+  });
+}
+
+const GESTION_PRO_GLYPH = "/projects/gestion-pro.svg";
+
+describe("Gestion Pro icon (spec 008, RF-11, RNF-4)", () => {
+  it("has nothing active", () => {
+    expectSafeSvg(readPublic(GESTION_PRO_GLYPH));
+  });
+
+  it("is a 32x32 pixel-art drawing", () => {
+    const root = rootAttributes(readPublic(GESTION_PRO_GLYPH));
+    expect(root.viewBox).toBe("0 0 32 32");
+    expect(root.width).toBe("32");
+    expect(root.height).toBe("32");
+    expect(root["shape-rendering"]).toBe("crispEdges");
+  });
+
+  it("has a black outline", () => {
+    expect(readPublic(GESTION_PRO_GLYPH)).toMatch(/fill="#000"/);
+  });
+
+  it("weighs 4096 bytes or less", () => {
+    const path = join(process.cwd(), "public", GESTION_PRO_GLYPH);
+    expect(statSync(path).size).toBeLessThanOrEqual(4096);
+  });
+
+  it("walks every folder of public/ looking for drawings", () => {
+    const svgs = publicSvgs();
+    for (const folder of ["icons", "skills", "cursors", "wallpaper"]) {
+      expect(
+        svgs.some((src) => src.startsWith("/" + folder + "/")),
+        folder,
+      ).toBe(true);
+    }
+    expect(svgs).toContain("/skills/own-support.svg");
+    expect(svgs).toContain(GESTION_PRO_GLYPH);
+  });
+
+  it("differs from every other SVG of public/", () => {
+    const icon = readPublic(GESTION_PRO_GLYPH);
+    for (const src of publicSvgs()) {
+      if (src === GESTION_PRO_GLYPH) continue;
+      expect(readPublic(src), src).not.toBe(icon);
+    }
   });
 });
 

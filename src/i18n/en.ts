@@ -47,6 +47,11 @@ export const en = {
     pause: "Pause",
     resume: "Resume",
     folderGroup: "Skill folders",
+    projectGroup: "Project cards",
+    projectOpenHint: "Open a project with a double-click, Enter or a tap.",
+    projectTags: "Context",
+    contribution: "My contribution",
+    features: "Main features",
     logoCredit: "{brand} logo by {author} (color applied),",
     logoLicenseName:
       "{license} license for the {brand} logo, opens in a new tab",

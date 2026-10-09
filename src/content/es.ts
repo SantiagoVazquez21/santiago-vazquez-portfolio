@@ -8,10 +8,23 @@ export const es = {
   projects: {
     gestionPro: {
       name: "Gestion Pro",
-      subtitle: "Sistema de gestión para taller electrónico automotriz",
+      tagline: "Sistema de gestión para taller electrónico automotriz",
       description:
-        "Aplicación de escritorio para la gestión completa de un laboratorio de electrónica automotriz. Permite administrar clientes, órdenes de trabajo (módulos, cerrajería e instalaciones), ventas de insumos con control de stock, cotizaciones y garantías. Desarrollada en equipo aplicando arquitectura en capas.",
+        "Aplicación de escritorio para la gestión completa de un laboratorio de electrónica automotriz. Desarrollada en equipo aplicando arquitectura en capas.",
+      contribution:
+        "Diseñé el sistema de interfaz (tema y estilos) y desarrollé las pantallas de login, clientes, órdenes de trabajo, ventas con control de stock, cotizaciones y garantías, el modo oscuro y la documentación de diseño.",
+      features: {
+        customers: "Gestión de clientes",
+        workOrders: "Órdenes de trabajo: módulos, cerrajería e instalaciones",
+        sales: "Ventas de insumos con control de stock",
+        quotes: "Cotizaciones",
+        warranties: "Garantías",
+      },
     },
+  },
+  projectTags: {
+    teamWork: "Desarrollado en equipo",
+    desktopApp: "App de escritorio",
   },
   technologies: {
     csharp: "C#",
