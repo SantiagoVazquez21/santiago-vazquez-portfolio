@@ -2,7 +2,7 @@
 
 **Desarrollador Full Stack** · Buenos Aires, Argentina · [English below](#english)
 
-Mi portafolio personal, con forma de escritorio de Windows 95: íconos, ventanas que se mueven y se minimizan, barra de tareas y un fondo con nubes. Cada sección es una ventana: proyectos, experiencia, formación, habilidades y contacto.
+Mi portafolio personal, con forma de escritorio de Windows 95: íconos, ventanas que se mueven y se minimizan, barra de tareas y un fondo en pixel art con nubes. Cada sección es una ventana: proyectos, experiencia, formación, habilidades y contacto.
 
 **🔗 Verlo en vivo: [santiago-vazquez-portfolio.vercel.app](https://santiago-vazquez-portfolio.vercel.app)**
 
@@ -64,7 +64,7 @@ El sitio funciona sin configuración. Para que el formulario envíe emails de ve
 
 **Full Stack Developer** · Buenos Aires, Argentina
 
-My personal portfolio, built as a Windows 95 desktop: icons, draggable and minimizable windows, a taskbar and a cloudy wallpaper. Each section is a window: projects, experience, education, skills and contact.
+My personal portfolio, built as a Windows 95 desktop: icons, draggable and minimizable windows, a taskbar and a pixel-art cloudy wallpaper. Each section is a window: projects, experience, education, skills and contact.
 
 **🔗 Live: [santiago-vazquez-portfolio.vercel.app](https://santiago-vazquez-portfolio.vercel.app)**
 
