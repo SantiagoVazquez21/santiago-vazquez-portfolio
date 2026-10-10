@@ -50,16 +50,24 @@ export const en = {
       period: "2025",
       organization: "Municipalidad de Caseros",
       area: "Social Action Department",
-      modality: "Internship (200 hours · 6 months)",
-      tasks: {
-        digitization:
-          "Identified the department's document management problem and proposed a digitization solution to replace unorganized paper records.",
-        spreadsheets:
-          "Developed an Excel spreadsheet system with advanced functions (VLOOKUP, pivot tables, data validation, conditional formulas) that was adopted by the team.",
-        sensitiveData:
-          "Managed sensitive citizen data, ensuring the confidentiality, integrity and traceability of the information.",
-      },
+      modality: "Internship · 200 h · 6 months",
+      highlight:
+        "Spreadsheet system adopted by the team to replace the paper records",
     },
+  },
+  jobTasks: {
+    digitization:
+      "Identified the department's document management problem and proposed a digitization solution to replace unorganized paper records.",
+    spreadsheets:
+      "Developed an Excel spreadsheet system with advanced functions (VLOOKUP, pivot tables, data validation, conditional formulas) that was adopted by the team.",
+    sensitiveData:
+      "Managed sensitive citizen data, ensuring the confidentiality, integrity and traceability of the information.",
+  },
+  jobTools: {
+    advancedExcel: "Advanced Excel",
+    pivotTables: "Pivot tables",
+    dataValidation: "Data validation",
+    sensitiveDataHandling: "Sensitive data handling",
   },
   studies: {
     softwareDevelopment: {

@@ -18,6 +18,7 @@ import {
   STUDIES,
   type FeatureId,
   type FolderId,
+  type JobToolId,
   type ProjectTagId,
   type SkillId,
   type TechnologyId,
@@ -161,14 +162,55 @@ describe("PROJECTS", () => {
   });
 });
 
+// Order of annex A of spec 011.
+const MUNICIPAL_INTERNSHIP_TOOLS: readonly JobToolId[] = [
+  "advancedExcel",
+  "pivotTables",
+  "dataValidation",
+  "sensitiveDataHandling",
+];
+
+const EXPERIENCE_ICON = DESKTOP_ICONS.find((icon) => icon.id === "experience");
+
 describe("JOBS", () => {
-  it("lists the municipal internship with its 3 tasks in order", () => {
+  it("lists the municipal internship with its 3 tasks and 4 tools in order (spec 011, annex A)", () => {
     expect(JOBS).toEqual([
       {
         id: "municipalInternship",
+        glyph: EXPERIENCE_ICON?.glyphSrc,
         taskIds: ["digitization", "spreadsheets", "sensitiveData"],
+        toolIds: MUNICIPAL_INTERNSHIP_TOOLS,
       },
     ]);
+  });
+
+  it("keeps only ids and the glyph (no visible text)", () => {
+    for (const job of JOBS) {
+      expect(Object.keys(job).sort()).toEqual([
+        "glyph",
+        "id",
+        "taskIds",
+        "toolIds",
+      ]);
+    }
+  });
+
+  it("draws every job with the desktop Experience icon (spec 011, RF-12)", () => {
+    expect(EXPERIENCE_ICON).toBeDefined();
+    for (const { id, glyph } of JOBS) {
+      expect(glyph, id).toBe(EXPERIENCE_ICON?.glyphSrc);
+    }
+  });
+
+  it("never repeats a task id across jobs", () => {
+    const taskIds = JOBS.flatMap((job) => job.taskIds);
+    expect(new Set(taskIds).size).toBe(taskIds.length);
+  });
+
+  it("never repeats a tool id within a job", () => {
+    for (const { id, toolIds } of JOBS) {
+      expect(new Set(toolIds).size, id).toBe(toolIds.length);
+    }
   });
 });
 

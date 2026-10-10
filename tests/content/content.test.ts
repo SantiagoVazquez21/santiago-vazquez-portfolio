@@ -78,11 +78,20 @@ describe.each(LANGS)("CONTENT.%s keys follow the catalog", (lang) => {
     );
   });
 
-  it("lists jobs in catalog order, each with exactly its taskIds", () => {
+  it("lists jobs in catalog order", () => {
     expect(Object.keys(content.jobs)).toEqual(JOBS.map((job) => job.id));
-    for (const job of JOBS) {
-      expect(Object.keys(content.jobs[job.id].tasks)).toEqual(job.taskIds);
-    }
+  });
+
+  it("lists job tasks in the order of the jobs and their taskIds", () => {
+    expect(Object.keys(content.jobTasks)).toEqual(
+      JOBS.flatMap((job) => job.taskIds),
+    );
+  });
+
+  it("lists job tools in the order the jobs use them", () => {
+    expect(Object.keys(content.jobTools)).toEqual(
+      unique(JOBS.flatMap((job) => job.toolIds)),
+    );
   });
 
   it("lists studies in catalog order", () => {
@@ -162,6 +171,89 @@ describe.each(LANGS)("CONTENT.%s projects (spec 008, annex A)", (lang) => {
 
   it("matches annex A for the project tags", () => {
     expect(CONTENT[lang].projectTags).toEqual(PROJECT_TAGS_ANNEX_A[lang]);
+  });
+});
+
+// Annex A of spec 011, letter by letter; title, period, organization, area and the
+// three tasks are spec 004's, unchanged (the tasks only moved to jobTasks).
+const MUNICIPAL_INTERNSHIP_ANNEX_A = {
+  es: {
+    title: "Asistente de Datos y Automatización",
+    period: "2025",
+    organization: "Municipalidad de Caseros",
+    area: "Área de Acción Social",
+    modality: "Pasantía · 200 h · 6 meses",
+    highlight:
+      "Sistema de planillas adoptado por el equipo, que reemplazó los registros en papel",
+  },
+  en: {
+    title: "Data and Automation Assistant",
+    period: "2025",
+    organization: "Municipalidad de Caseros",
+    area: "Social Action Department",
+    modality: "Internship · 200 h · 6 months",
+    highlight:
+      "Spreadsheet system adopted by the team to replace the paper records",
+  },
+} as const;
+
+const JOB_TASKS_ANNEX_A = {
+  es: {
+    digitization:
+      "Identifiqué la problemática de gestión documental del área y propuse una solución de digitalización que reemplazó registros en papel sin orden.",
+    spreadsheets:
+      "Desarrollé un sistema de planillas en Excel con funciones avanzadas (BUSCARV, tablas dinámicas, validación de datos, fórmulas condicionales) adoptado por el equipo de trabajo.",
+    sensitiveData:
+      "Gestioné datos sensibles de ciudadanos garantizando la confidencialidad, integridad y trazabilidad de la información.",
+  },
+  en: {
+    digitization:
+      "Identified the department's document management problem and proposed a digitization solution to replace unorganized paper records.",
+    spreadsheets:
+      "Developed an Excel spreadsheet system with advanced functions (VLOOKUP, pivot tables, data validation, conditional formulas) that was adopted by the team.",
+    sensitiveData:
+      "Managed sensitive citizen data, ensuring the confidentiality, integrity and traceability of the information.",
+  },
+} as const;
+
+const JOB_TOOLS_ANNEX_A = {
+  es: {
+    advancedExcel: "Excel avanzado",
+    pivotTables: "Tablas dinámicas",
+    dataValidation: "Validación de datos",
+    sensitiveDataHandling: "Gestión de datos sensibles",
+  },
+  en: {
+    advancedExcel: "Advanced Excel",
+    pivotTables: "Pivot tables",
+    dataValidation: "Data validation",
+    sensitiveDataHandling: "Sensitive data handling",
+  },
+} as const;
+
+describe.each(LANGS)("CONTENT.%s experience (spec 011, annex A)", (lang) => {
+  it("matches annex A for the internship", () => {
+    expect(CONTENT[lang].jobs.municipalInternship).toEqual(
+      MUNICIPAL_INTERNSHIP_ANNEX_A[lang],
+    );
+  });
+
+  it("matches annex A for the job tasks", () => {
+    expect(CONTENT[lang].jobTasks).toEqual(JOB_TASKS_ANNEX_A[lang]);
+  });
+
+  it("matches annex A for the job tools", () => {
+    expect(CONTENT[lang].jobTools).toEqual(JOB_TOOLS_ANNEX_A[lang]);
+  });
+});
+
+describe("organization names (spec 011, RF-10)", () => {
+  it("writes every organization the same in es and en", () => {
+    for (const job of JOBS) {
+      expect(CONTENT.en.jobs[job.id].organization).toBe(
+        CONTENT.es.jobs[job.id].organization,
+      );
+    }
   });
 });
 

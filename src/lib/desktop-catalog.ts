@@ -25,6 +25,9 @@ export const LINKEDIN_URL =
 // Target of About's "Contactarme" (spec 010, RF-9); a constant, never a literal in a component.
 export const CONTACT_WINDOW_ID: WindowId = "contact";
 
+// Also the icon of every job card (spec 011, RF-12): the path lives only here.
+export const EXPERIENCE_GLYPH = "/icons/experience.svg";
+
 // Order of RF-2.
 export const DESKTOP_ICONS: readonly DesktopIconEntry[] = [
   {
@@ -43,7 +46,7 @@ export const DESKTOP_ICONS: readonly DesktopIconEntry[] = [
   },
   {
     id: "experience",
-    glyphSrc: "/icons/experience.svg",
+    glyphSrc: EXPERIENCE_GLYPH,
     href: null,
     opensNewTab: false,
     downloadName: null,

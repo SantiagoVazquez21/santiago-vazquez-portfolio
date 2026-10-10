@@ -4,6 +4,7 @@ import type {
   FeatureId,
   FolderId,
   JobId,
+  JobToolId,
   LanguageId,
   ProjectId,
   ProjectTagId,
@@ -43,10 +44,14 @@ export type PortfolioContent = {
       organization: string;
       area: string;
       modality: string;
-      // Each job shows only the tasks of its taskIds in the catalog.
-      tasks: Record<TaskId, string>;
+      // Required: every job has a result to tell (spec 011, plan D10).
+      highlight: string;
     }
   >;
+  // Unique across jobs (TaskId already is), so each job reads only its taskIds (spec 011, plan D7).
+  jobTasks: Record<TaskId, string>;
+  // Shared across jobs, like projectTags: each job shows only its toolIds (spec 011, plan D8).
+  jobTools: Record<JobToolId, string>;
   studies: Record<
     StudyId,
     {

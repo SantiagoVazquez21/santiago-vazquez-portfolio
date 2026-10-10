@@ -48,16 +48,24 @@ export const es = {
       period: "2025",
       organization: "Municipalidad de Caseros",
       area: "Área de Acción Social",
-      modality: "Pasantía (200 hs · 6 meses)",
-      tasks: {
-        digitization:
-          "Identifiqué la problemática de gestión documental del área y propuse una solución de digitalización que reemplazó registros en papel sin orden.",
-        spreadsheets:
-          "Desarrollé un sistema de planillas en Excel con funciones avanzadas (BUSCARV, tablas dinámicas, validación de datos, fórmulas condicionales) adoptado por el equipo de trabajo.",
-        sensitiveData:
-          "Gestioné datos sensibles de ciudadanos garantizando la confidencialidad, integridad y trazabilidad de la información.",
-      },
+      modality: "Pasantía · 200 h · 6 meses",
+      highlight:
+        "Sistema de planillas adoptado por el equipo, que reemplazó los registros en papel",
     },
+  },
+  jobTasks: {
+    digitization:
+      "Identifiqué la problemática de gestión documental del área y propuse una solución de digitalización que reemplazó registros en papel sin orden.",
+    spreadsheets:
+      "Desarrollé un sistema de planillas en Excel con funciones avanzadas (BUSCARV, tablas dinámicas, validación de datos, fórmulas condicionales) adoptado por el equipo de trabajo.",
+    sensitiveData:
+      "Gestioné datos sensibles de ciudadanos garantizando la confidencialidad, integridad y trazabilidad de la información.",
+  },
+  jobTools: {
+    advancedExcel: "Excel avanzado",
+    pivotTables: "Tablas dinámicas",
+    dataValidation: "Validación de datos",
+    sensitiveDataHandling: "Gestión de datos sensibles",
   },
   studies: {
     softwareDevelopment: {

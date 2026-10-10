@@ -6,7 +6,7 @@ import { fillTemplate } from "@/lib/text-template";
 
 const LANGS = ["es", "en"] as const;
 
-describe("sections texts (spec 004 annex B, spec 006 annex A, spec 008 annex B, spec 009 and spec 010 texts tables)", () => {
+describe("sections texts (spec 004 annex B, spec 006 annex A, spec 008 annex B, spec 009 and spec 010 texts tables, spec 011 annex B)", () => {
   it("match the annexes in Spanish", () => {
     expect(DICTIONARIES.es.sections).toEqual({
       technologies: "Tecnologías",
@@ -23,6 +23,12 @@ describe("sections texts (spec 004 annex B, spec 006 annex A, spec 008 annex B, 
       projectTags: "Contexto",
       contribution: "Mi aporte",
       features: "Funcionalidades principales",
+      experienceGroup: "Tarjetas de experiencia",
+      experienceOpenHint:
+        "Abrí una experiencia con doble clic, Enter o un toque.",
+      highlight: "Logro destacado",
+      tasks: "Tareas",
+      tools: "Herramientas",
       logoCredit: "Logo de {brand} por {author} (color aplicado),",
       logoLicenseName:
         "Licencia {license} del logo de {brand}, se abre en una pestaña nueva",
@@ -70,6 +76,12 @@ describe("sections texts (spec 004 annex B, spec 006 annex A, spec 008 annex B, 
       projectTags: "Context",
       contribution: "My contribution",
       features: "Main features",
+      experienceGroup: "Experience cards",
+      experienceOpenHint:
+        "Open an experience with a double-click, Enter or a tap.",
+      highlight: "Key achievement",
+      tasks: "Tasks",
+      tools: "Tools",
       logoCredit: "{brand} logo by {author} (color applied),",
       logoLicenseName:
         "{license} license for the {brand} logo, opens in a new tab",

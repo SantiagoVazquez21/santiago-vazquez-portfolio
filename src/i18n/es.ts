@@ -52,6 +52,12 @@ export const es = {
     projectTags: "Contexto",
     contribution: "Mi aporte",
     features: "Funcionalidades principales",
+    experienceGroup: "Tarjetas de experiencia",
+    experienceOpenHint:
+      "Abrí una experiencia con doble clic, Enter o un toque.",
+    highlight: "Logro destacado",
+    tasks: "Tareas",
+    tools: "Herramientas",
     logoCredit: "Logo de {brand} por {author} (color aplicado),",
     logoLicenseName:
       "Licencia {license} del logo de {brand}, se abre en una pestaña nueva",

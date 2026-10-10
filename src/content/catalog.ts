@@ -1,6 +1,8 @@
 // Structure and order of the portfolio content. Visible text lives in es.ts and en.ts,
 // indexed by these ids, so adding an entry only touches src/content/ (spec 004, RNF-6).
 
+import { EXPERIENCE_GLYPH } from "@/lib/desktop-catalog";
+
 export type ProjectId = "gestionPro";
 
 export type TechnologyId =
@@ -16,6 +18,10 @@ export type JobId = "municipalInternship";
 
 // Unique across jobs, so a new job brings its own task ids.
 export type TaskId = "digitization" | "spreadsheets" | "sensitiveData";
+
+// Shared across jobs, like ProjectTagId: two jobs can both use "Excel avanzado".
+export type JobToolId =
+  "advancedExcel" | "pivotTables" | "dataValidation" | "sensitiveDataHandling";
 
 export type StudyId = "softwareDevelopment" | "itTechnician";
 
@@ -59,7 +65,13 @@ export type ProjectEntry = {
   featureIds: readonly FeatureId[];
 };
 
-export type JobEntry = { id: JobId; taskIds: readonly TaskId[] };
+export type JobEntry = {
+  id: JobId;
+  glyph: string;
+  taskIds: readonly TaskId[];
+  // May be empty: the job then shows no tool chips (spec 011, RF-2 and RF-6).
+  toolIds: readonly JobToolId[];
+};
 
 // certificateFile: name of a PDF in public/certificates/, or null if the study has no certificate.
 // Only the copy with the ID number covered is published; the original PDF never (spec 009, RF-14).
@@ -86,7 +98,14 @@ export const PROJECTS: readonly ProjectEntry[] = [
 export const JOBS: readonly JobEntry[] = [
   {
     id: "municipalInternship",
+    glyph: EXPERIENCE_GLYPH,
     taskIds: ["digitization", "spreadsheets", "sensitiveData"],
+    toolIds: [
+      "advancedExcel",
+      "pivotTables",
+      "dataValidation",
+      "sensitiveDataHandling",
+    ],
   },
 ];
 

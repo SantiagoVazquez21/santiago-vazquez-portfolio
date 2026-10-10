@@ -51,6 +51,11 @@ export type Dictionary = {
     projectTags: string;
     contribution: string;
     features: string;
+    experienceGroup: string;
+    experienceOpenHint: string;
+    highlight: string;
+    tasks: string;
+    tools: string;
     logoCredit: string;
     logoLicenseName: string;
     certificate: string;
