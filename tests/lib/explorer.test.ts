@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { FolderId, ProjectId } from "@/content/catalog";
+import type { FolderId, ProjectId, StudyId } from "@/content/catalog";
 import {
   canNavigate,
   clearSelection,
@@ -326,6 +326,73 @@ describe("projects (ProjectId)", () => {
     expect(opened).toEqual({
       open: PROJECT,
       selected: PROJECT,
+      navigatedAt: OPENED_AT,
+    });
+  });
+});
+
+// Spec 009: Formación reuses the explorer as is, with the study whose certificate is shown.
+describe("studies (StudyId)", () => {
+  const STUDY: StudyId = "itTechnician";
+
+  function studyList(selected: StudyId | null): ExplorerView<StudyId> {
+    return Object.freeze({ open: null, selected, navigatedAt: null });
+  }
+
+  it("starts from EXPLORER_START with nothing open or selected (RF-11)", () => {
+    const start: ExplorerView<StudyId> = EXPLORER_START;
+    expect(start.open).toBeNull();
+    expect(start.selected).toBeNull();
+  });
+
+  it("opens the certificate of itTechnician and selects it (RF-4)", () => {
+    expect(openItem(studyList(null), STUDY, OPENED_AT)).toEqual({
+      open: "itTechnician",
+      selected: "itTechnician",
+      navigatedAt: OPENED_AT,
+    });
+  });
+
+  it("goBack at 499 ms returns the same object (RF-9)", () => {
+    const opened = openItem(studyList(null), STUDY, OPENED_AT);
+    expect(goBack(opened, OPENED_AT + NAVIGATION_COOLDOWN_MS - 1)).toBe(opened);
+  });
+
+  it("goBack at 500 ms returns to the list with itTechnician selected (RF-9)", () => {
+    const opened = openItem(studyList(null), STUDY, OPENED_AT);
+    const now = OPENED_AT + NAVIGATION_COOLDOWN_MS;
+    expect(goBack(opened, now)).toEqual({
+      open: null,
+      selected: "itTechnician",
+      navigatedAt: now,
+    });
+  });
+
+  it("does not reopen inside the cooldown after going back (RF-4, RF-9)", () => {
+    const opened = openItem(studyList(null), STUDY, OPENED_AT);
+    const backAt = OPENED_AT + NAVIGATION_COOLDOWN_MS;
+    const back = goBack(opened, backAt);
+    expect(openItem(back, STUDY, backAt + NAVIGATION_COOLDOWN_MS - 1)).toBe(
+      back,
+    );
+  });
+
+  it("no transition mutates the frozen study state it receives", () => {
+    const list = studyList(null);
+    const opened: ExplorerView<StudyId> = Object.freeze({
+      open: STUDY,
+      selected: STUDY,
+      navigatedAt: OPENED_AT,
+    });
+    const later = OPENED_AT + NAVIGATION_COOLDOWN_MS;
+    expect(() => {
+      openItem(list, STUDY, later);
+      goBack(opened, later);
+    }).not.toThrow();
+    expect(list).toEqual({ open: null, selected: null, navigatedAt: null });
+    expect(opened).toEqual({
+      open: STUDY,
+      selected: STUDY,
       navigatedAt: OPENED_AT,
     });
   });

@@ -64,6 +64,13 @@ describe("resolveRequest", () => {
   it("/api/contact renders without a redirect", () => {
     expect(resolveRequest("/api/contact", "")).toEqual(render("es"));
   });
+
+  // Spec 009: the certificate PDF is a public file, served like any other without a language hop.
+  it("/certificates/analitico-tecnico.pdf renders without a redirect (RF-7)", () => {
+    expect(resolveRequest("/certificates/analitico-tecnico.pdf", "")).toEqual(
+      render("es"),
+    );
+  });
 });
 
 describe("langForPath", () => {

@@ -63,6 +63,12 @@ const TEST_DICTIONARY: Dictionary = {
     features: "Test features",
     logoCredit: "Test logo credit {brand} {author}",
     logoLicenseName: "Test logo license name {license} {brand}",
+    certificate: "Test certificate",
+    certificateName: "Test certificate name {study}",
+    certificateViewerName: "Test certificate viewer name {study}",
+    certificateOpen: "Test certificate open",
+    certificateOpenName: "Test certificate open name {study}",
+    certificateNoViewer: "Test certificate no viewer",
   },
   switcher: {
     esCode: "T-ES",

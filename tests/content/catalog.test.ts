@@ -18,7 +18,15 @@ import {
   type SkillId,
   type TechnologyId,
 } from "@/content/catalog";
+import {
+  CERTIFICATES_PATH,
+  certificateAssignmentProblems,
+  certificateForStudy,
+  unassignedCertificateFiles,
+  unexpectedPdfs,
+} from "@/lib/certificates";
 import { logoFill } from "@/lib/color-contrast";
+import { DESKTOP_ICONS } from "@/lib/desktop-catalog";
 import { expectSafeSvg, rootAttributes } from "../lib/svg-checks";
 
 // Folders and skills in the order of annex A of spec 004.
@@ -162,10 +170,109 @@ describe("JOBS", () => {
 
 describe("STUDIES", () => {
   it("lists study 1 with a status and study 2 without one", () => {
-    expect(STUDIES).toEqual([
+    expect(STUDIES.map(({ id, hasStatus }) => ({ id, hasStatus }))).toEqual([
       { id: "softwareDevelopment", hasStatus: true },
       { id: "itTechnician", hasStatus: false },
     ]);
+  });
+
+  // The null values are not pinned, so activating a certificate is a one-line change (spec 009, RNF-5).
+  it("keeps exactly the certificate file, the status and the id of each study", () => {
+    for (const study of STUDIES) {
+      expect(Object.keys(study).sort(), study.id).toEqual([
+        "certificateFile",
+        "hasStatus",
+        "id",
+      ]);
+    }
+  });
+
+  it("gives no certificate to the study in progress (spec 009, RF-1)", () => {
+    const inProgress = STUDIES.find(({ id }) => id === "softwareDevelopment");
+    expect(inProgress?.hasStatus).toBe(true);
+    expect(inProgress && certificateForStudy(inProgress)).toBeNull();
+  });
+});
+
+const PUBLIC_DIRECTORY = join(process.cwd(), "public");
+
+// Every file under public/, as a path relative to it with "/" (e.g. "skills/php.svg").
+function publicFiles(directory = PUBLIC_DIRECTORY): string[] {
+  return readdirSync(directory).flatMap((entry) => {
+    const path = join(directory, entry);
+    if (statSync(path).isDirectory()) return publicFiles(path);
+    return [relative(PUBLIC_DIRECTORY, path).split(sep).join("/")];
+  });
+}
+
+const CERTIFICATES_DIRECTORY = join(
+  PUBLIC_DIRECTORY,
+  ...CERTIFICATES_PATH.split("/").filter(Boolean),
+);
+
+// Missing folder = no files: activation creates it (spec 009, plan section 9).
+function certificateFolderFiles(): string[] {
+  return existsSync(CERTIFICATES_DIRECTORY)
+    ? readdirSync(CERTIFICATES_DIRECTORY)
+    : [];
+}
+
+function assignedCertificateFiles(): string[] {
+  return STUDIES.flatMap(({ certificateFile }) =>
+    certificateFile === null ? [] : [certificateFile],
+  );
+}
+
+// Only the name is kept here: the original file itself never enters the project (spec 009, RF-14).
+const ORIGINAL_CERTIFICATE_NAME =
+  "AnaliticoSecundarioTecnico_SantiagoVazquez.pdf".toLowerCase();
+
+function fileName(path: string): string {
+  return path.split("/").pop() ?? path;
+}
+
+describe("certificates (spec 009, RF-1, RF-14, RNF-5)", () => {
+  it("has no certificate assignment problem", () => {
+    expect(
+      certificateAssignmentProblems(STUDIES, certificateFolderFiles()),
+    ).toEqual([]);
+  });
+
+  it("keeps only assigned files in public/certificates/", () => {
+    expect(
+      unassignedCertificateFiles(STUDIES, certificateFolderFiles()),
+    ).toEqual([]);
+  });
+
+  it("publishes no PDF other than the resume and the assigned certificates", () => {
+    const folder = CERTIFICATES_PATH.replace(/^\//, "");
+    const allowed = [
+      ...DESKTOP_ICONS.flatMap(({ href }) =>
+        href !== null && href.startsWith("/") && /\.pdf$/i.test(href)
+          ? [href.slice(1)]
+          : [],
+      ),
+      ...assignedCertificateFiles().map((file) => folder + file),
+    ];
+    expect(allowed.length).toBeGreaterThan(0);
+    expect(unexpectedPdfs(publicFiles(), allowed)).toEqual([]);
+  });
+
+  it("walks every folder of public/ looking for PDFs", () => {
+    const files = publicFiles();
+    expect(files).toContain("skills/own-support.svg");
+    expect(files.some((file) => /\.pdf$/i.test(file))).toBe(true);
+  });
+
+  it("never names a public file or a certificate like the original PDF", () => {
+    for (const file of publicFiles()) {
+      expect(fileName(file).toLowerCase(), file).not.toBe(
+        ORIGINAL_CERTIFICATE_NAME,
+      );
+    }
+    for (const file of assignedCertificateFiles()) {
+      expect(file.toLowerCase(), file).not.toBe(ORIGINAL_CERTIFICATE_NAME);
+    }
   });
 });
 

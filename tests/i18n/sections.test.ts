@@ -6,7 +6,7 @@ import { fillTemplate } from "@/lib/text-template";
 
 const LANGS = ["es", "en"] as const;
 
-describe("sections texts (spec 004 annex B, spec 006 annex A, spec 008 annex B)", () => {
+describe("sections texts (spec 004 annex B, spec 006 annex A, spec 008 annex B, spec 009 texts table)", () => {
   it("match the annexes in Spanish", () => {
     expect(DICTIONARIES.es.sections).toEqual({
       technologies: "Tecnologías",
@@ -26,6 +26,14 @@ describe("sections texts (spec 004 annex B, spec 006 annex A, spec 008 annex B)"
       logoCredit: "Logo de {brand} por {author} (color aplicado),",
       logoLicenseName:
         "Licencia {license} del logo de {brand}, se abre en una pestaña nueva",
+      certificate: "Certificado",
+      certificateName: "Certificado de {study}",
+      certificateViewerName: "Certificado de {study}, documento PDF",
+      certificateOpen: "Abrir / Descargar PDF",
+      certificateOpenName:
+        "Abrir / Descargar PDF del certificado de {study}, se abre en una pestaña nueva",
+      certificateNoViewer:
+        "No se puede mostrar el PDF dentro de la ventana. Abrilo o descargalo con el botón «Abrir / Descargar PDF».",
     });
   });
 
@@ -48,6 +56,14 @@ describe("sections texts (spec 004 annex B, spec 006 annex A, spec 008 annex B)"
       logoCredit: "{brand} logo by {author} (color applied),",
       logoLicenseName:
         "{license} license for the {brand} logo, opens in a new tab",
+      certificate: "Certificate",
+      certificateName: "Certificate for {study}",
+      certificateViewerName: "Certificate for {study}, PDF document",
+      certificateOpen: "Open / Download PDF",
+      certificateOpenName:
+        "Open / Download PDF of the certificate for {study}, opens in a new tab",
+      certificateNoViewer:
+        "The PDF can't be shown inside the window. Open or download it with the “Open / Download PDF” button.",
     });
   });
 });
@@ -62,6 +78,63 @@ describe("repository name template (spec 008 RF-6)", () => {
       "Gestion Pro repository, opens in a new tab",
     );
   });
+});
+
+describe("certificate name templates (spec 009 RF-12)", () => {
+  const STUDY = {
+    es: "Técnico en Informática Personal y Profesional",
+    en: "IT Technician",
+  } as const;
+
+  it("use the IT Technician title from the content as the study", () => {
+    expect(CONTENT.es.studies.itTechnician.title).toBe(STUDY.es);
+    expect(CONTENT.en.studies.itTechnician.title).toBe(STUDY.en);
+  });
+
+  it("fill in with the IT Technician as the texts table shows in Spanish", () => {
+    const texts = DICTIONARIES.es.sections;
+    const values = { study: STUDY.es };
+    expect(fillTemplate(texts.certificateName, values)).toBe(
+      "Certificado de Técnico en Informática Personal y Profesional",
+    );
+    expect(fillTemplate(texts.certificateViewerName, values)).toBe(
+      "Certificado de Técnico en Informática Personal y Profesional, documento PDF",
+    );
+    expect(fillTemplate(texts.certificateOpenName, values)).toBe(
+      "Abrir / Descargar PDF del certificado de Técnico en Informática Personal y Profesional, se abre en una pestaña nueva",
+    );
+  });
+
+  it("fill in with the IT Technician as the texts table shows in English", () => {
+    const texts = DICTIONARIES.en.sections;
+    const values = { study: STUDY.en };
+    expect(fillTemplate(texts.certificateName, values)).toBe(
+      "Certificate for IT Technician",
+    );
+    expect(fillTemplate(texts.certificateViewerName, values)).toBe(
+      "Certificate for IT Technician, PDF document",
+    );
+    expect(fillTemplate(texts.certificateOpenName, values)).toBe(
+      "Open / Download PDF of the certificate for IT Technician, opens in a new tab",
+    );
+  });
+
+  it.each(LANGS)(
+    "start each accessible name with its visible text in %s",
+    (lang) => {
+      const texts = DICTIONARIES[lang].sections;
+      const values = { study: STUDY[lang] };
+      const name = fillTemplate(texts.certificateName, values).toLowerCase();
+      const openName = fillTemplate(
+        texts.certificateOpenName,
+        values,
+      ).toLowerCase();
+      expect(name.startsWith(texts.certificate.toLowerCase())).toBe(true);
+      expect(openName.startsWith(texts.certificateOpen.toLowerCase())).toBe(
+        true,
+      );
+    },
+  );
 });
 
 describe("logo credit templates (RF-15)", () => {

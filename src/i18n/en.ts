@@ -55,6 +55,14 @@ export const en = {
     logoCredit: "{brand} logo by {author} (color applied),",
     logoLicenseName:
       "{license} license for the {brand} logo, opens in a new tab",
+    certificate: "Certificate",
+    certificateName: "Certificate for {study}",
+    certificateViewerName: "Certificate for {study}, PDF document",
+    certificateOpen: "Open / Download PDF",
+    certificateOpenName:
+      "Open / Download PDF of the certificate for {study}, opens in a new tab",
+    certificateNoViewer:
+      "The PDF can't be shown inside the window. Open or download it with the “Open / Download PDF” button.",
   },
   switcher: {
     esCode: "ES",

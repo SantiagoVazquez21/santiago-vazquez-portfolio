@@ -51,6 +51,12 @@ export type Dictionary = {
     features: string;
     logoCredit: string;
     logoLicenseName: string;
+    certificate: string;
+    certificateName: string;
+    certificateViewerName: string;
+    certificateOpen: string;
+    certificateOpenName: string;
+    certificateNoViewer: string;
   };
   switcher: {
     esCode: string;

@@ -97,3 +97,61 @@ El remitente es `onboarding@resend.dev` (sin dominio verificado) y la dirección
 
 - **Si falta alguna variable** (o Resend falla): el sitio funciona igual, pero al enviar el formulario aparece el error de envío, con lo escrito conservado y el enlace a LinkedIn como alternativa.
 - **Límite de intentos:** 5 envíos cada 10 minutos por visitante (por dirección de red). Al superarlo aparece el aviso de demasiados intentos, con lo escrito conservado. El límite vive en la memoria de cada instancia del servidor, así que reiniciar `npm run dev` lo vacía.
+
+## Certificados de Formación
+
+En la ventana Formación, cada estudio terminado puede tener un botón "Certificado" que muestra su PDF dentro de la misma ventana, con "Volver" para regresar a la lista y "Abrir / Descargar PDF" para abrirlo en una pestaña nueva. Hoy **ningún certificado está activo**: los dos estudios tienen `certificateFile: null` en `src/content/catalog.ts` y el botón no aparece. El certificado del Técnico se activa cuando el dueño entregue el analítico **con el DNI tapado**.
+
+> **El PDF original nunca se publica ni se copia.** El analítico original, con el DNI a la vista, no va a `public/` ni a ninguna otra carpeta del proyecto o del scratchpad, ni completo ni en parte, ni con otro nombre, ni como base de otro PDF. Tampoco se abre desde el proyecto. Solo se publica la versión tapada que entrega el dueño. Es una regla de `CLAUDE.md` (sección "Reglas": no publicar el DNI ni documentos con datos sensibles del dueño sin taparlos; el CV es la única excepción aprobada) y una decisión del dueño (spec 009, RF-14).
+
+### Activar el certificado
+
+Hacé los pasos en este orden. Si alguno falla, pará: no se activa nada.
+
+1. **Comprobación manual de RF-14, antes de copiar el archivo** (ver [Comprobación manual del DNI](#comprobación-manual-del-dni-rf-14)). Anotá el resultado en el registro de esa sección. Si algo falla, pedile al dueño otra versión (por ejemplo, impresa a PDF como imagen).
+2. **Copiá el archivo tapado** a `public/certificates/` (creá la carpeta si no existe) con un nombre válido y distinto del original. Sugerido: `analitico-tecnico-informatica.pdf`. Un nombre es válido si:
+   - empieza por una letra o un dígito;
+   - después solo tiene letras sin tilde, dígitos, `_` o `-`;
+   - termina en `.pdf`, en minúsculas;
+   - no tiene espacios, `/`, `..`, `%`, tildes ni ñ.
+
+   Es la regla de `certificateHref` en `src/lib/certificates.ts`: con un nombre inválido el botón no aparece y los tests fallan.
+
+3. **Completá la línea del Técnico** en `src/content/catalog.ts`, cambiando solo el `null` por el nombre del archivo:
+
+   ```ts
+   { id: "itTechnician", hasStatus: false, certificateFile: "analitico-tecnico-informatica.pdf" },
+   ```
+
+   No toques la línea de la Tecnicatura: es un estudio en curso y no puede tener certificado.
+
+4. **Corré los cinco comandos** de [Comandos de calidad](#comandos-de-calidad); todos tienen que terminar en verde.
+5. **Probá en el navegador** sobre el build de producción (`npm run build` y `npm run start -- -p 3105`): el botón "Certificado" aparece solo en el Técnico, el visor muestra el PDF, "Volver" regresa a la lista y "Abrir / Descargar PDF" abre una pestaña nueva. Sacá capturas a 1280 y 360 px de ancho para el dueño y detené el servidor al terminar.
+6. **Commit** solo cuando el dueño lo pida.
+
+### Comprobación manual del DNI (RF-14)
+
+Se hace sobre el PDF tapado que se va a publicar, nunca sobre el original. Tienen que cumplirse las tres:
+
+- **(a) A la vista:** abrí el PDF y recorré todas las páginas. El DNI no se lee en ninguna, ni siquiera ampliando.
+- **(b) Texto seleccionable:** seleccioná todo el texto (Ctrl+A) y buscá (Ctrl+F) los dígitos del DNI, con y sin puntos. No tienen que aparecer. Un rectángulo negro dibujado encima no borra el texto que queda debajo: si al copiar y pegar aparece el número, el tapado no sirve.
+- **(c) Propiedades y metadatos:** revisá las propiedades del documento (autor, título, asunto, palabras clave y demás campos). No tienen que contener el DNI.
+
+Registro (anotá fecha y resultado, **sin escribir nunca los dígitos del DNI**):
+
+| Comprobación                  | Fecha     | Resultado                         |
+| ----------------------------- | --------- | --------------------------------- |
+| (a) DNI ilegible a la vista   | Pendiente | Pendiente: falta el PDF tapado    |
+| (b) DNI ausente del texto     | Pendiente | Pendiente: falta el PDF tapado    |
+| (c) DNI ausente de metadatos  | Pendiente | Pendiente: falta el PDF tapado    |
+
+### Qué comprueban los tests y qué no
+
+`npm run test` (en `tests/content/catalog.test.ts`, con las reglas de `src/lib/certificates.ts`) comprueba, sin leer el contenido de ningún PDF:
+
+- que el archivo asignado existe en `public/certificates/`, tiene un nombre válido y pertenece a un estudio terminado;
+- que `public/certificates/` solo contiene archivos asignados en el catálogo (hoy, ninguno): un archivo olvidado ahí hace fallar los tests;
+- que los únicos PDF de todo `public/` son el CV y los certificados asignados;
+- que ningún archivo de `public/` ni ningún `certificateFile` se llama como el PDF original.
+
+Lo que **no** pueden comprobar: si el DNI está tapado (a la vista, en el texto o en los metadatos) ni si el archivo asignado es una copia renombrada del original. Eso solo lo cubre la comprobación manual, que es obligatoria antes de activar.

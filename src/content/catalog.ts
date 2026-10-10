@@ -61,7 +61,14 @@ export type ProjectEntry = {
 
 export type JobEntry = { id: JobId; taskIds: readonly TaskId[] };
 
-export type StudyEntry = { id: StudyId; hasStatus: boolean };
+// certificateFile: name of a PDF in public/certificates/, or null if the study has no certificate.
+// Only the copy with the ID number covered is published; the original PDF never (spec 009, RF-14).
+// To activate: copy the PDF to public/certificates/ and put its name here (README, "Certificados de Formación").
+export type StudyEntry = {
+  id: StudyId;
+  hasStatus: boolean;
+  certificateFile: string | null;
+};
 
 export type SkillFolderEntry = { id: FolderId; skillIds: readonly SkillId[] };
 
@@ -84,8 +91,8 @@ export const JOBS: readonly JobEntry[] = [
 ];
 
 export const STUDIES: readonly StudyEntry[] = [
-  { id: "softwareDevelopment", hasStatus: true },
-  { id: "itTechnician", hasStatus: false },
+  { id: "softwareDevelopment", hasStatus: true, certificateFile: null },
+  { id: "itTechnician", hasStatus: false, certificateFile: null },
 ];
 
 export const LANGUAGE_IDS: readonly LanguageId[] = ["english"];
