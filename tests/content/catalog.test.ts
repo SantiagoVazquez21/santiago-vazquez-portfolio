@@ -3,6 +3,10 @@ import { join, relative, sep } from "node:path";
 import { describe, expect, it } from "vitest";
 import * as catalog from "@/content/catalog";
 import {
+  ABOUT_FIELD_IDS,
+  ABOUT_PHOTO,
+  ABOUT_PHOTO_FRAME,
+  ABOUT_STATUS_FIELD,
   BACK_GLYPH,
   FOLDER_GLYPH,
   JOBS,
@@ -529,6 +533,371 @@ describe("Gestion Pro icon (spec 008, RF-11, RNF-4)", () => {
     for (const src of publicSvgs()) {
       if (src === GESTION_PRO_GLYPH) continue;
       expect(readPublic(src), src).not.toBe(icon);
+    }
+  });
+});
+
+describe("About sheet (spec 010, RF-3, RF-4)", () => {
+  it("lists the fields in the order of RF-3", () => {
+    expect(ABOUT_FIELD_IDS).toEqual([
+      "name",
+      "role",
+      "location",
+      "studies",
+      "languages",
+      "status",
+    ]);
+  });
+
+  it("draws the status row with a box, and that row is in the sheet", () => {
+    expect(ABOUT_STATUS_FIELD).toBe("status");
+    expect(ABOUT_FIELD_IDS).toContain(ABOUT_STATUS_FIELD);
+  });
+});
+
+const ASCII = new TextEncoder();
+
+function ascii(text: string): number[] {
+  return [...ASCII.encode(text)];
+}
+
+function containsBytes(bytes: Uint8Array, needle: readonly number[]): boolean {
+  outer: for (let i = 0; i + needle.length <= bytes.length; i++) {
+    for (let j = 0; j < needle.length; j++) {
+      if (bytes[i + j] !== needle[j]) continue outer;
+    }
+    return true;
+  }
+  return false;
+}
+
+function startsWithBytes(
+  bytes: Uint8Array,
+  needle: readonly number[],
+  offset = 0,
+): boolean {
+  return needle.every((byte, index) => bytes[offset + index] === byte);
+}
+
+function readUint24LE(bytes: Uint8Array, offset: number): number {
+  return bytes[offset] | (bytes[offset + 1] << 8) | (bytes[offset + 2] << 16);
+}
+
+function readUint32LE(bytes: Uint8Array, offset: number): number {
+  return readUint24LE(bytes, offset) + bytes[offset + 3] * 0x1000000;
+}
+
+const JPEG_SIGNATURE = [0xff, 0xd8, 0xff];
+const RIFF = ascii("RIFF");
+const WEBP = ascii("WEBP");
+
+function isJpeg(bytes: Uint8Array): boolean {
+  return startsWithBytes(bytes, JPEG_SIGNATURE);
+}
+
+function isWebp(bytes: Uint8Array): boolean {
+  return startsWithBytes(bytes, RIFF) && startsWithBytes(bytes, WEBP, 8);
+}
+
+type RiffChunk = { type: string; offset: number; size: number };
+
+// Chunks after the "WEBP" form type; null if a size runs past the end of the file.
+function webpChunks(bytes: Uint8Array): RiffChunk[] | null {
+  const chunks: RiffChunk[] = [];
+  let offset = 12;
+  while (offset < bytes.length) {
+    if (offset + 8 > bytes.length) return null;
+    const type = String.fromCharCode(...bytes.subarray(offset, offset + 4));
+    const size = readUint32LE(bytes, offset + 4);
+    if (offset + 8 + size > bytes.length) return null;
+    chunks.push({ type, offset: offset + 8, size });
+    offset += 8 + size + (size % 2);
+  }
+  return chunks;
+}
+
+const ALLOWED_WEBP_CHUNKS = ["VP8 ", "VP8L", "VP8X", "ALPH", "ICCP"];
+const VP8X_EXIF_FLAG = 0x08;
+const VP8X_XMP_FLAG = 0x04;
+
+const JPEG_COMMENT = 0xfe;
+const JPEG_APP0 = 0xe0;
+const JPEG_APP2 = 0xe2;
+const JPEG_APP15 = 0xef;
+const ICC_PROFILE_ID = [...ascii("ICC_PROFILE"), 0];
+
+function jpegMetadataFound(bytes: Uint8Array): boolean {
+  // Scanning every byte is sound: inside entropy-coded data an FF is always followed by 00 or D0-D7.
+  for (let i = 0; i + 1 < bytes.length; i++) {
+    if (bytes[i] !== 0xff) continue;
+    const marker = bytes[i + 1];
+    if (marker === JPEG_COMMENT) return true;
+    if (marker < JPEG_APP0 || marker > JPEG_APP15 || marker === JPEG_APP0) {
+      continue;
+    }
+    if (marker !== JPEG_APP2) return true;
+    if (!startsWithBytes(bytes, ICC_PROFILE_ID, i + 4)) return true;
+  }
+  return false;
+}
+
+function webpMetadataFound(bytes: Uint8Array): boolean {
+  const chunks = webpChunks(bytes);
+  if (chunks === null) return true;
+  for (const { type, offset } of chunks) {
+    if (!ALLOWED_WEBP_CHUNKS.includes(type)) return true;
+    if (type === "VP8X" && bytes[offset] & (VP8X_EXIF_FLAG | VP8X_XMP_FLAG)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+const METADATA_TEXTS = [
+  "Exif",
+  "XMP",
+  "http://ns.adobe.com/xap",
+  "Photoshop",
+  "GPS",
+];
+
+// Test-only detector of personal metadata (plan 010, section 7 and D9): an ICC color profile is allowed.
+function metadataFound(bytes: Uint8Array): boolean {
+  if (METADATA_TEXTS.some((text) => containsBytes(bytes, ascii(text)))) {
+    return true;
+  }
+  if (isJpeg(bytes)) return jpegMetadataFound(bytes);
+  if (isWebp(bytes)) return webpMetadataFound(bytes);
+  return true;
+}
+
+// Width and height stored in the file itself, or null if the header is not understood.
+function imageSize(
+  bytes: Uint8Array,
+): { width: number; height: number } | null {
+  if (isWebp(bytes)) {
+    const chunk = webpChunks(bytes)?.[0];
+    if (chunk === undefined) return null;
+    const at = chunk.offset;
+    if (chunk.type === "VP8X") {
+      return {
+        width: readUint24LE(bytes, at + 4) + 1,
+        height: readUint24LE(bytes, at + 7) + 1,
+      };
+    }
+    if (chunk.type === "VP8 ") {
+      return {
+        width: (bytes[at + 6] | (bytes[at + 7] << 8)) & 0x3fff,
+        height: (bytes[at + 8] | (bytes[at + 9] << 8)) & 0x3fff,
+      };
+    }
+    if (chunk.type === "VP8L") {
+      const bits = readUint32LE(bytes, at + 1);
+      return {
+        width: (bits & 0x3fff) + 1,
+        height: ((bits >>> 14) & 0x3fff) + 1,
+      };
+    }
+    return null;
+  }
+  if (isJpeg(bytes)) {
+    let offset = 2;
+    while (offset + 9 < bytes.length && bytes[offset] === 0xff) {
+      const marker = bytes[offset + 1];
+      const length = (bytes[offset + 2] << 8) | bytes[offset + 3];
+      const isFrame =
+        marker >= 0xc0 &&
+        marker <= 0xcf &&
+        ![0xc4, 0xc8, 0xcc].includes(marker);
+      if (isFrame) {
+        return {
+          height: (bytes[offset + 5] << 8) | bytes[offset + 6],
+          width: (bytes[offset + 7] << 8) | bytes[offset + 8],
+        };
+      }
+      offset += 2 + length;
+    }
+  }
+  return null;
+}
+
+// Synthetic files built in memory, so the detector is proven without touching the real photo.
+function jpegSegment(marker: number, payload: readonly number[]): number[] {
+  const length = payload.length + 2;
+  return [0xff, marker, length >> 8, length & 0xff, ...payload];
+}
+
+function syntheticJpeg(...segments: number[][]): Uint8Array {
+  return new Uint8Array([0xff, 0xd8, ...segments.flat(), 0xff, 0xd9]);
+}
+
+function riffChunk(type: string, payload: readonly number[]): number[] {
+  const size = payload.length;
+  const padding = size % 2 === 1 ? [0] : [];
+  return [
+    ...ascii(type),
+    size & 0xff,
+    (size >> 8) & 0xff,
+    (size >> 16) & 0xff,
+    (size >>> 24) & 0xff,
+    ...payload,
+    ...padding,
+  ];
+}
+
+function syntheticWebp(...chunks: number[][]): Uint8Array {
+  const body = [...WEBP, ...chunks.flat()];
+  const size = body.length;
+  return new Uint8Array([
+    ...RIFF,
+    size & 0xff,
+    (size >> 8) & 0xff,
+    (size >> 16) & 0xff,
+    (size >>> 24) & 0xff,
+    ...body,
+  ]);
+}
+
+const JFIF = jpegSegment(JPEG_APP0, [
+  ...ascii("JFIF"),
+  0,
+  1,
+  1,
+  0,
+  0,
+  1,
+  0,
+  1,
+  0,
+  0,
+]);
+const ICC_APP2 = jpegSegment(JPEG_APP2, [...ICC_PROFILE_ID, 1, 1, 0, 0, 0, 0]);
+const VP8_FRAME = riffChunk("VP8 ", [0, 0, 0, 0x9d, 0x01, 0x2a, 1, 0, 1, 0]);
+
+function vp8x(flags: number): number[] {
+  return riffChunk("VP8X", [flags, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+}
+
+const FILES_WITH_METADATA: ReadonlyArray<readonly [string, Uint8Array]> = [
+  ["JPEG with a comment (FF FE)", syntheticJpeg(JFIF, jpegSegment(0xfe, [1]))],
+  [
+    "JPEG with APP1 Exif (FF E1)",
+    syntheticJpeg(JFIF, jpegSegment(0xe1, [...ascii("Exif"), 0, 0])),
+  ],
+  ["JPEG with APP13 (FF ED)", syntheticJpeg(JFIF, jpegSegment(0xed, [1, 2]))],
+  [
+    "JPEG with APP2 that is not ICC (FF E2)",
+    syntheticJpeg(JFIF, jpegSegment(JPEG_APP2, [...ascii("MPF"), 0, 1])),
+  ],
+  ["WebP with an EXIF chunk", syntheticWebp(VP8_FRAME, riffChunk("EXIF", [1]))],
+  ["WebP with an XMP chunk", syntheticWebp(VP8_FRAME, riffChunk("XMP ", [1]))],
+  [
+    "WebP with the VP8X EXIF flag",
+    syntheticWebp(vp8x(VP8X_EXIF_FLAG), VP8_FRAME),
+  ],
+  [
+    "WebP with the VP8X XMP flag",
+    syntheticWebp(vp8x(VP8X_XMP_FLAG), VP8_FRAME),
+  ],
+];
+
+const VP8X_ICC_FLAG = 0x20;
+
+const FILES_WITHOUT_METADATA: ReadonlyArray<readonly [string, Uint8Array]> = [
+  ["JPEG with only APP0 (FF E0)", syntheticJpeg(JFIF)],
+  ["JPEG with APP0 and an ICC APP2", syntheticJpeg(JFIF, ICC_APP2)],
+  ["WebP with only VP8", syntheticWebp(VP8_FRAME)],
+  [
+    "WebP with the VP8X ICC flag, ICCP and VP8",
+    syntheticWebp(vp8x(VP8X_ICC_FLAG), riffChunk("ICCP", [1, 2, 3]), VP8_FRAME),
+  ],
+];
+
+describe("personal metadata detector (spec 010, RF-14, D9)", () => {
+  it("is checked with 8 files with metadata and 4 clean ones", () => {
+    expect(FILES_WITH_METADATA).toHaveLength(8);
+    expect(FILES_WITHOUT_METADATA).toHaveLength(4);
+  });
+
+  it.each(FILES_WITH_METADATA)("finds metadata in a %s", (_name, bytes) => {
+    expect(metadataFound(bytes)).toBe(true);
+  });
+
+  it.each(FILES_WITHOUT_METADATA)("accepts a %s", (_name, bytes) => {
+    expect(metadataFound(bytes)).toBe(false);
+  });
+
+  it("treats a file of unknown format as suspicious", () => {
+    expect(metadataFound(new Uint8Array(ascii("GIF89a")))).toBe(true);
+  });
+});
+
+const PHOTO_MAX_BYTES = 40_960;
+const ABOUT_DIRECTORY = join(PUBLIC_DIRECTORY, "about");
+const ORIGINAL_PHOTO_NAME = "foto.jpg";
+
+function photoPath(): string {
+  return join(PUBLIC_DIRECTORY, ...ABOUT_PHOTO.src.split("/").filter(Boolean));
+}
+
+function photoBytes(): Uint8Array {
+  return new Uint8Array(readFileSync(photoPath()));
+}
+
+describe("About photo (spec 010, RF-2, RF-11, RF-14, RNF-4)", () => {
+  it("is 240 px wide with an even height", () => {
+    expect(ABOUT_PHOTO.width).toBe(240);
+    expect(Number.isInteger(ABOUT_PHOTO.height)).toBe(true);
+    expect(ABOUT_PHOTO.height).toBeGreaterThan(0);
+    expect(ABOUT_PHOTO.height % 2).toBe(0);
+  });
+
+  it("frames the photo at half its size, fixed in whole pixels", () => {
+    expect(ABOUT_PHOTO_FRAME).toEqual({
+      width: 120,
+      height: ABOUT_PHOTO.height / 2,
+    });
+  });
+
+  it("lives under /about/ as a WebP or a JPG", () => {
+    expect(ABOUT_PHOTO.src).toMatch(/^\/about\/[a-z0-9-]+\.(webp|jpg)$/);
+  });
+
+  it("exists in public/", () => {
+    expect(existsSync(photoPath())).toBe(true);
+  });
+
+  it("weighs less than 40 960 bytes", () => {
+    expect(statSync(photoPath()).size).toBeLessThan(PHOTO_MAX_BYTES);
+  });
+
+  it("has the header of its extension", () => {
+    const bytes = photoBytes();
+    if (ABOUT_PHOTO.src.endsWith(".webp")) {
+      expect(isWebp(bytes)).toBe(true);
+    } else {
+      expect(isJpeg(bytes)).toBe(true);
+    }
+  });
+
+  it("stores the same width and height as ABOUT_PHOTO", () => {
+    expect(imageSize(photoBytes())).toEqual({
+      width: ABOUT_PHOTO.width,
+      height: ABOUT_PHOTO.height,
+    });
+  });
+
+  it("carries no personal metadata", () => {
+    expect(metadataFound(photoBytes())).toBe(false);
+  });
+
+  it("is the only file in public/about/", () => {
+    expect(readdirSync(ABOUT_DIRECTORY)).toEqual([fileName(ABOUT_PHOTO.src)]);
+  });
+
+  it("never names a public file like the original photo", () => {
+    for (const file of publicFiles()) {
+      expect(fileName(file).toLowerCase(), file).not.toBe(ORIGINAL_PHOTO_NAME);
     }
   });
 });

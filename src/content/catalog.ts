@@ -163,6 +163,36 @@ export const LOGO_CREDITS: readonly LogoCreditEntry[] = [
   { id: "git", licenseUrl: "https://creativecommons.org/licenses/by/3.0/" },
 ];
 
+export type AboutFieldId =
+  "name" | "role" | "location" | "studies" | "languages" | "status";
+
+// Order of RF-3 of spec 010.
+export const ABOUT_FIELD_IDS: readonly AboutFieldId[] = [
+  "name",
+  "role",
+  "location",
+  "studies",
+  "languages",
+  "status",
+];
+
+// The row drawn with a box and a marker (spec 010, RF-4); compared as a constant, never as a literal.
+export const ABOUT_STATUS_FIELD: AboutFieldId = "status";
+
+// The real file's size (spec 010, T3). The height is even so the frame below is a whole number of px.
+export const ABOUT_PHOTO = {
+  src: "/about/photo.webp",
+  width: 240,
+  height: 296,
+} as const;
+
+// Fixed inner size of the frame, so it never depends on the image loading (RF-2, RF-11).
+// Half the file, which is 2x for high-density screens (RNF-4).
+export const ABOUT_PHOTO_FRAME = {
+  width: ABOUT_PHOTO.width / 2,
+  height: ABOUT_PHOTO.height / 2,
+} as const;
+
 export const FOLDER_GLYPH = "/icons/folder.svg";
 
 export const BACK_GLYPH = "/icons/back.svg";

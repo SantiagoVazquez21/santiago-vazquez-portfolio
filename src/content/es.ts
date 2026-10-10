@@ -4,6 +4,15 @@ export const es = {
   about: {
     profile:
       "Técnico en Informática Personal y Profesional con conocimientos en mantenimiento de hardware, instalación y configuración de sistemas operativos y soporte técnico. Actualmente cursando la Tecnicatura Superior en Desarrollo de Software con manejo de JavaScript, MySQL, HTML/CSS y formación activa en React Native y C# / .NET. Experiencia en diseño de bases de datos relacionales y desarrollo web en entornos de equipo con metodología Scrum.",
+    photoAlt: "Foto de perfil de Santiago Elian Vazquez",
+    fields: {
+      name: "Santiago Elian Vazquez",
+      role: "Desarrollador Full Stack",
+      location: "Buenos Aires, Argentina",
+      studies: "Tecnicatura en Desarrollo de Software, cursando 2° año",
+      languages: "Español nativo · Inglés B2",
+      status: "Disponible para trabajar",
+    },
   },
   projects: {
     gestionPro: {

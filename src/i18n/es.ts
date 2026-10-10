@@ -63,6 +63,23 @@ export const es = {
       "Abrir / Descargar PDF del certificado de {study}, se abre en una pestaña nueva",
     certificateNoViewer:
       "No se puede mostrar el PDF dentro de la ventana. Abrilo o descargalo con el botón «Abrir / Descargar PDF».",
+    aboutFields: {
+      name: "Nombre",
+      role: "Rol",
+      location: "Ubicación",
+      studies: "Estudios",
+      languages: "Idiomas",
+      status: "Estado",
+    },
+    aboutLinksGroup: "Accesos rápidos",
+    aboutResume: "Descargar CV",
+    aboutResumeName: "Descargar CV, archivo PDF",
+    aboutGithub: "GitHub",
+    aboutGithubName: "GitHub, se abre en una pestaña nueva",
+    aboutLinkedin: "LinkedIn",
+    aboutLinkedinName: "LinkedIn, se abre en una pestaña nueva",
+    aboutContact: "Contactarme",
+    aboutContactName: "Contactarme, abre la ventana Contacto",
   },
   switcher: {
     esCode: "ES",

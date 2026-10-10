@@ -1,4 +1,5 @@
 import type {
+  AboutFieldId,
   CreditedLogoId,
   FeatureId,
   FolderId,
@@ -13,7 +14,12 @@ import type {
 } from "@/content/catalog";
 
 export type PortfolioContent = {
-  about: { profile: string };
+  about: {
+    profile: string;
+    photoAlt: string;
+    // name and role repeat home.name and home.role; a test keeps them equal.
+    fields: Record<AboutFieldId, string>;
+  };
   projects: Record<
     ProjectId,
     {

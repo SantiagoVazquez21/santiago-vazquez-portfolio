@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { CONTENT } from "@/content";
-import { LOGO_CREDITS } from "@/content/catalog";
+import { ABOUT_FIELD_IDS, LOGO_CREDITS } from "@/content/catalog";
 import { DICTIONARIES } from "@/i18n";
 import { fillTemplate } from "@/lib/text-template";
 
 const LANGS = ["es", "en"] as const;
 
-describe("sections texts (spec 004 annex B, spec 006 annex A, spec 008 annex B, spec 009 texts table)", () => {
+describe("sections texts (spec 004 annex B, spec 006 annex A, spec 008 annex B, spec 009 and spec 010 texts tables)", () => {
   it("match the annexes in Spanish", () => {
     expect(DICTIONARIES.es.sections).toEqual({
       technologies: "Tecnologías",
@@ -34,6 +34,23 @@ describe("sections texts (spec 004 annex B, spec 006 annex A, spec 008 annex B, 
         "Abrir / Descargar PDF del certificado de {study}, se abre en una pestaña nueva",
       certificateNoViewer:
         "No se puede mostrar el PDF dentro de la ventana. Abrilo o descargalo con el botón «Abrir / Descargar PDF».",
+      aboutFields: {
+        name: "Nombre",
+        role: "Rol",
+        location: "Ubicación",
+        studies: "Estudios",
+        languages: "Idiomas",
+        status: "Estado",
+      },
+      aboutLinksGroup: "Accesos rápidos",
+      aboutResume: "Descargar CV",
+      aboutResumeName: "Descargar CV, archivo PDF",
+      aboutGithub: "GitHub",
+      aboutGithubName: "GitHub, se abre en una pestaña nueva",
+      aboutLinkedin: "LinkedIn",
+      aboutLinkedinName: "LinkedIn, se abre en una pestaña nueva",
+      aboutContact: "Contactarme",
+      aboutContactName: "Contactarme, abre la ventana Contacto",
     });
   });
 
@@ -64,8 +81,52 @@ describe("sections texts (spec 004 annex B, spec 006 annex A, spec 008 annex B, 
         "Open / Download PDF of the certificate for {study}, opens in a new tab",
       certificateNoViewer:
         "The PDF can't be shown inside the window. Open or download it with the “Open / Download PDF” button.",
+      aboutFields: {
+        name: "Name",
+        role: "Role",
+        location: "Location",
+        studies: "Education",
+        languages: "Languages",
+        status: "Status",
+      },
+      aboutLinksGroup: "Quick links",
+      aboutResume: "Download resume",
+      aboutResumeName: "Download resume, PDF file",
+      aboutGithub: "GitHub",
+      aboutGithubName: "GitHub, opens in a new tab",
+      aboutLinkedin: "LinkedIn",
+      aboutLinkedinName: "LinkedIn, opens in a new tab",
+      aboutContact: "Contact me",
+      aboutContactName: "Contact me, opens the Contact window",
     });
   });
+});
+
+describe("about texts (spec 010 RF-3, RF-12)", () => {
+  it.each(LANGS)(
+    "list the field labels in ABOUT_FIELD_IDS order in %s",
+    (lang) => {
+      expect(Object.keys(DICTIONARIES[lang].sections.aboutFields)).toEqual([
+        ...ABOUT_FIELD_IDS,
+      ]);
+    },
+  );
+
+  it.each(LANGS)(
+    "start each quick link accessible name with its visible text in %s",
+    (lang) => {
+      const texts = DICTIONARIES[lang].sections;
+      const pairs = [
+        [texts.aboutResumeName, texts.aboutResume],
+        [texts.aboutGithubName, texts.aboutGithub],
+        [texts.aboutLinkedinName, texts.aboutLinkedin],
+        [texts.aboutContactName, texts.aboutContact],
+      ] as const;
+      for (const [name, visible] of pairs) {
+        expect(name.toLowerCase().startsWith(visible.toLowerCase())).toBe(true);
+      }
+    },
+  );
 });
 
 describe("repository name template (spec 008 RF-6)", () => {

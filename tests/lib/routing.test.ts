@@ -71,6 +71,11 @@ describe("resolveRequest", () => {
       render("es"),
     );
   });
+
+  // Spec 010: About's photo is a public file too, so it must not get a language hop (RF-2).
+  it("/about/photo.webp renders without a redirect (spec 010, RF-2)", () => {
+    expect(resolveRequest("/about/photo.webp", "")).toEqual(render("es"));
+  });
 });
 
 describe("langForPath", () => {

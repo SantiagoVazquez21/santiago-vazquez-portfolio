@@ -468,3 +468,25 @@ describe("windowFrame", () => {
     expect(rect).toEqual(copy);
   });
 });
+
+// About's two columns rely on these widths; reuse, they pass from the start (spec 010, T2).
+describe("minimum floating width (spec 010)", () => {
+  it("floats at exactly 640 × 500 and goes fullscreen when either side is short", () => {
+    expect(layoutMode({ width: 640, height: 500 })).toBe(LAYOUT_MODE.floating);
+    expect(layoutMode({ width: 1280, height: 480 })).toBe(
+      LAYOUT_MODE.fullscreen,
+    );
+    expect(layoutMode({ width: 740, height: 360 })).toBe(
+      LAYOUT_MODE.fullscreen,
+    );
+  });
+
+  it("opens a 608 px wide window on the smallest floating desktop", () => {
+    expect(initialRect(null, FLOATING_MIN_SIZE, 0).width).toBe(608);
+  });
+
+  it("narrows a 720 px window to 640 px on a 640 × 500 desktop", () => {
+    const rect: Rect = { x: 100, y: 50, width: 720, height: 480 };
+    expect(fitRect(rect, { width: 640, height: 500 }).width).toBe(640);
+  });
+});

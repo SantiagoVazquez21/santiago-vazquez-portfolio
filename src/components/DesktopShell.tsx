@@ -276,6 +276,8 @@ export function DesktopShell({
                   content={content}
                   texts={sectionTexts}
                   contactTexts={contactTexts}
+                  onOpenWindow={handleOpenWindow}
+                  layout={mode}
                 />
               </AppWindow>
             ))}

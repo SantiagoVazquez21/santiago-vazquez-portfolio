@@ -13,11 +13,17 @@ export type DesktopIconEntry = {
   downloadName: string | null;
 };
 
-const RESUME_FILE_NAME = "CV_SantiagoElianVazquez.pdf";
+// Shared by the desktop icons and About's quick links (spec 010, RF-7 and RF-8).
+export const RESUME_FILE_NAME = "CV_SantiagoElianVazquez.pdf";
+export const RESUME_HREF = `/${RESUME_FILE_NAME}`;
+export const GITHUB_URL = "https://github.com/SantiagoVazquez21";
 
 // Shared by the desktop icon and the contact form's send error (spec 005, RF-8).
 export const LINKEDIN_URL =
   "https://www.linkedin.com/in/santiago-vazquez-b266b3374/";
+
+// Target of About's "Contactarme" (spec 010, RF-9); a constant, never a literal in a component.
+export const CONTACT_WINDOW_ID: WindowId = "contact";
 
 // Order of RF-2.
 export const DESKTOP_ICONS: readonly DesktopIconEntry[] = [
@@ -66,14 +72,14 @@ export const DESKTOP_ICONS: readonly DesktopIconEntry[] = [
   {
     id: "resume",
     glyphSrc: "/icons/resume.svg",
-    href: `/${RESUME_FILE_NAME}`,
+    href: RESUME_HREF,
     opensNewTab: false,
     downloadName: RESUME_FILE_NAME,
   },
   {
     id: "github",
     glyphSrc: "/icons/github.svg",
-    href: "https://github.com/SantiagoVazquez21",
+    href: GITHUB_URL,
     opensNewTab: true,
     downloadName: null,
   },

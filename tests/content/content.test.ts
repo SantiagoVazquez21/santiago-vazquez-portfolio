@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { CONTENT } from "@/content";
 import {
+  ABOUT_FIELD_IDS,
   JOBS,
   LANGUAGE_IDS,
   LOGO_CREDITS,
@@ -9,6 +10,7 @@ import {
   STUDIES,
   type SkillId,
 } from "@/content/catalog";
+import { DICTIONARIES } from "@/i18n";
 import { compareDictionaries, type DictionaryTree } from "@/lib/dictionaries";
 
 const LANGS = ["es", "en"] as const;
@@ -160,6 +162,66 @@ describe.each(LANGS)("CONTENT.%s projects (spec 008, annex A)", (lang) => {
 
   it("matches annex A for the project tags", () => {
     expect(CONTENT[lang].projectTags).toEqual(PROJECT_TAGS_ANNEX_A[lang]);
+  });
+});
+
+// Table of texts of spec 010, letter by letter; the profile is spec 004's, unchanged.
+const ABOUT_TABLE = {
+  es: {
+    profile:
+      "Técnico en Informática Personal y Profesional con conocimientos en mantenimiento de hardware, instalación y configuración de sistemas operativos y soporte técnico. Actualmente cursando la Tecnicatura Superior en Desarrollo de Software con manejo de JavaScript, MySQL, HTML/CSS y formación activa en React Native y C# / .NET. Experiencia en diseño de bases de datos relacionales y desarrollo web en entornos de equipo con metodología Scrum.",
+    photoAlt: "Foto de perfil de Santiago Elian Vazquez",
+    fields: {
+      name: "Santiago Elian Vazquez",
+      role: "Desarrollador Full Stack",
+      location: "Buenos Aires, Argentina",
+      studies: "Tecnicatura en Desarrollo de Software, cursando 2° año",
+      languages: "Español nativo · Inglés B2",
+      status: "Disponible para trabajar",
+    },
+  },
+  en: {
+    profile:
+      "IT Technician with knowledge of hardware maintenance, operating system installation and configuration, and technical support. Currently pursuing a Higher Technical Degree in Software Development, working with JavaScript, MySQL and HTML/CSS, and actively training in React Native and C# / .NET. Experience in relational database design and web development in team environments using the Scrum methodology.",
+    photoAlt: "Profile photo of Santiago Elian Vazquez",
+    fields: {
+      name: "Santiago Elian Vazquez",
+      role: "Full Stack Developer",
+      location: "Buenos Aires, Argentina",
+      studies:
+        "Technical Degree in Software Development, currently in 2nd year",
+      languages: "Native Spanish · English B2",
+      status: "Open to work",
+    },
+  },
+} as const;
+
+describe.each(LANGS)("CONTENT.%s about (spec 010)", (lang) => {
+  const about = CONTENT[lang].about;
+
+  it("matches the table of texts letter by letter", () => {
+    expect(about).toEqual(ABOUT_TABLE[lang]);
+  });
+
+  it("lists the fields in ABOUT_FIELD_IDS order", () => {
+    expect(Object.keys(about.fields)).toEqual(ABOUT_FIELD_IDS);
+  });
+
+  it("repeats the name and role of the home page (RF-13)", () => {
+    expect(about.fields.name).toBe(DICTIONARIES[lang].home.name);
+    expect(about.fields.role).toBe(DICTIONARIES[lang].home.role);
+  });
+
+  it("gives only the city and country as location (RF-14)", () => {
+    expect(about.fields.location).toBe("Buenos Aires, Argentina");
+  });
+});
+
+describe("about studies in Spanish (spec 010)", () => {
+  it("is exactly the owner's text", () => {
+    expect(CONTENT.es.about.fields.studies).toBe(
+      "Tecnicatura en Desarrollo de Software, cursando 2° año",
+    );
   });
 });
 

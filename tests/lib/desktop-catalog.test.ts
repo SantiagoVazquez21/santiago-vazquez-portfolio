@@ -3,8 +3,12 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import * as catalog from "@/lib/desktop-catalog";
 import {
+  CONTACT_WINDOW_ID,
   DESKTOP_ICONS,
+  GITHUB_URL,
   LINKEDIN_URL,
+  RESUME_FILE_NAME,
+  RESUME_HREF,
   WINDOW_CONTROL_GLYPHS,
   WINDOW_IDS,
   type IconId,
@@ -123,6 +127,32 @@ describe("LINKEDIN_URL", () => {
 
   it("is the destination of the LinkedIn icon (plan 005, D11)", () => {
     expect(entryFor("linkedin").href).toBe(LINKEDIN_URL);
+  });
+});
+
+describe("shared destinations (spec 010)", () => {
+  it("RESUME_HREF is the resume file at the public root (RF-7)", () => {
+    expect(RESUME_FILE_NAME).toBe("CV_SantiagoElianVazquez.pdf");
+    expect(RESUME_HREF).toBe(`/${RESUME_FILE_NAME}`);
+  });
+
+  it("the resume icon uses RESUME_HREF and RESUME_FILE_NAME (RF-7)", () => {
+    const resume = entryFor("resume");
+    expect(resume.href).toBe(RESUME_HREF);
+    expect(resume.downloadName).toBe(RESUME_FILE_NAME);
+  });
+
+  it("GITHUB_URL is the exact profile URL (RF-8)", () => {
+    expect(GITHUB_URL).toBe("https://github.com/SantiagoVazquez21");
+  });
+
+  it("the GitHub icon uses GITHUB_URL (RF-8)", () => {
+    expect(entryFor("github").href).toBe(GITHUB_URL);
+  });
+
+  it("CONTACT_WINDOW_ID is a window id whose icon opens a window (RF-9)", () => {
+    expect(WINDOW_IDS).toContain(CONTACT_WINDOW_ID);
+    expect(entryFor(CONTACT_WINDOW_ID).href).toBeNull();
   });
 });
 

@@ -1,3 +1,5 @@
+import type { AboutFieldId } from "@/content/catalog";
+
 export type Dictionary = {
   home: {
     metaTitle: string;
@@ -57,6 +59,16 @@ export type Dictionary = {
     certificateOpen: string;
     certificateOpenName: string;
     certificateNoViewer: string;
+    aboutFields: Record<AboutFieldId, string>;
+    aboutLinksGroup: string;
+    aboutResume: string;
+    aboutResumeName: string;
+    aboutGithub: string;
+    aboutGithubName: string;
+    aboutLinkedin: string;
+    aboutLinkedinName: string;
+    aboutContact: string;
+    aboutContactName: string;
   };
   switcher: {
     esCode: string;

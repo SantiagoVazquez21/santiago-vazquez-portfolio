@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { DESKTOP_ICONS, type WindowId } from "@/lib/desktop-catalog";
+import {
+  CONTACT_WINDOW_ID,
+  DESKTOP_ICONS,
+  type WindowId,
+} from "@/lib/desktop-catalog";
 import {
   CASCADE_OFFSET,
   DEFAULT_WINDOW_SIZE,
@@ -935,5 +939,84 @@ describe("immutability", () => {
     );
     fitWindows(opened, { width: 700, height: 520 }, ONE_ROW_BOTTOM);
     expect(opened).toEqual(snapshot);
+  });
+});
+
+// Reuse of openWindow: these pass from the start, no new code (spec 010, T2).
+describe("opening Contact from About (spec 010)", () => {
+  it("adds Contact last, on top and active, leaving About untouched", () => {
+    const withAbout = openAll(["about"], LARGE_DESKTOP);
+    const next = openWindow(
+      withAbout,
+      CONTACT_WINDOW_ID,
+      LARGE_DESKTOP,
+      ONE_ROW_BOTTOM,
+    );
+    expect(next.windows.map((win) => win.id)).toEqual([
+      "about",
+      CONTACT_WINDOW_ID,
+    ]);
+    expect(next.stack).toEqual(["about", CONTACT_WINDOW_ID]);
+    expect(next.active).toBe(CONTACT_WINDOW_ID);
+    expect(windowOf(next, "about")).toEqual(windowOf(withAbout, "about"));
+  });
+
+  it("raises an open Contact under About without duplicating it or moving its rect", () => {
+    const opened = openAll([CONTACT_WINDOW_ID, "about"], LARGE_DESKTOP);
+    const next = openWindow(
+      opened,
+      CONTACT_WINDOW_ID,
+      LARGE_DESKTOP,
+      ONE_ROW_BOTTOM,
+    );
+    expect(
+      next.windows.filter((win) => win.id === CONTACT_WINDOW_ID),
+    ).toHaveLength(1);
+    expect(next.stack).toEqual(["about", CONTACT_WINDOW_ID]);
+    expect(next.active).toBe(CONTACT_WINDOW_ID);
+    expect(windowOf(next, CONTACT_WINDOW_ID).rect).toEqual(
+      windowOf(opened, CONTACT_WINDOW_ID).rect,
+    );
+    expect(windowOf(next, "about")).toEqual(windowOf(opened, "about"));
+  });
+
+  it("restores a minimized and maximized Contact, still maximized and with the same rect", () => {
+    const opened = withWindow(
+      openAll([CONTACT_WINDOW_ID, "about"], LARGE_DESKTOP),
+      CONTACT_WINDOW_ID,
+      { minimized: true, maximized: true },
+    );
+    const next = openWindow(
+      opened,
+      CONTACT_WINDOW_ID,
+      LARGE_DESKTOP,
+      ONE_ROW_BOTTOM,
+    );
+    const contact = windowOf(next, CONTACT_WINDOW_ID);
+    expect(contact.minimized).toBe(false);
+    expect(contact.maximized).toBe(true);
+    expect(contact.rect).toEqual(windowOf(opened, CONTACT_WINDOW_ID).rect);
+    expect(next.stack.at(-1)).toBe(CONTACT_WINDOW_ID);
+    expect(next.active).toBe(CONTACT_WINDOW_ID);
+  });
+
+  it("keeps a single Contact when opened twice in a row", () => {
+    const withAbout = openAll(["about"], LARGE_DESKTOP);
+    const once = deepFreeze(
+      openWindow(withAbout, CONTACT_WINDOW_ID, LARGE_DESKTOP, ONE_ROW_BOTTOM),
+    );
+    const twice = openWindow(
+      once,
+      CONTACT_WINDOW_ID,
+      LARGE_DESKTOP,
+      ONE_ROW_BOTTOM,
+    );
+    expect(
+      twice.windows.filter((win) => win.id === CONTACT_WINDOW_ID),
+    ).toHaveLength(1);
+    expect(twice.stack.filter((id) => id === CONTACT_WINDOW_ID)).toHaveLength(
+      1,
+    );
+    expect(twice).toEqual(once);
   });
 });
