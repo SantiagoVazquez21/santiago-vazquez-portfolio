@@ -22,6 +22,7 @@ export const es = {
         "Aplicación de escritorio para la gestión completa de un laboratorio de electrónica automotriz. Desarrollada en equipo aplicando arquitectura en capas.",
       contribution:
         "Diseñé el sistema de interfaz (tema y estilos) y desarrollé las pantallas de login, clientes, órdenes de trabajo, ventas con control de stock, cotizaciones y garantías, el modo oscuro y la documentación de diseño.",
+      screenshotAlt: "Captura de pantalla de Gestion Pro",
       features: {
         customers: "Gestión de clientes",
         workOrders: "Órdenes de trabajo: módulos, cerrajería e instalaciones",

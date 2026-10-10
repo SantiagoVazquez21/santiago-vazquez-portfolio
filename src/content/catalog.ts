@@ -63,6 +63,8 @@ export type ProjectEntry = {
   technologyIds: readonly TechnologyId[];
   tagIds: readonly ProjectTagId[];
   featureIds: readonly FeatureId[];
+  // null = the detail looks as in spec 008. No size here: one file does not justify it (plan 012, D8).
+  screenshot: string | null;
 };
 
 export type JobEntry = {
@@ -92,6 +94,7 @@ export const PROJECTS: readonly ProjectEntry[] = [
     technologyIds: ["csharp", "dotnet", "winforms", "mysql", "postgresql"],
     tagIds: ["teamWork", "desktopApp"],
     featureIds: ["customers", "workOrders", "sales", "quotes", "warranties"],
+    screenshot: "/projects/gestion-pro.webp",
   },
 ];
 

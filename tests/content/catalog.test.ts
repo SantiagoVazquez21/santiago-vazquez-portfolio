@@ -30,9 +30,13 @@ import {
   unassignedCertificateFiles,
   unexpectedPdfs,
 } from "@/lib/certificates";
-import { logoFill } from "@/lib/color-contrast";
+import { contrastRatio, logoFill } from "@/lib/color-contrast";
 import { DESKTOP_ICONS } from "@/lib/desktop-catalog";
-import { expectSafeSvg, rootAttributes } from "../lib/svg-checks";
+import {
+  expectSafeSvg,
+  parseElements,
+  rootAttributes,
+} from "../lib/svg-checks";
 
 // Folders and skills in the order of annex A of spec 004.
 const EXPECTED_FOLDERS: readonly {
@@ -102,18 +106,35 @@ describe("SKILL_FOLDERS", () => {
   });
 });
 
+const SCREENSHOT_PATH = /^\/projects\/[a-z0-9-]+\.(webp|png)$/;
+
+const MAX_SCREENSHOT_BYTES = 100 * 1024;
+
+// Chunk names that carry EXIF, XMP, ICC profiles or text in WebP and PNG (plan 012, section 7).
+const METADATA_MARKERS: readonly string[] = [
+  "EXIF",
+  "XMP ",
+  "eXIf",
+  "tEXt",
+  "iTXt",
+  "zTXt",
+  "ICCP",
+  "iCCP",
+];
+
 describe("PROJECTS", () => {
   it("lists Gestion Pro as the only project", () => {
     expect(PROJECTS.map((project) => project.id)).toEqual(["gestionPro"]);
   });
 
-  it("keeps only ids, the glyph and the repository URL (no visible text)", () => {
+  it("keeps only ids, paths and the repository URL (no visible text)", () => {
     for (const project of PROJECTS) {
       expect(Object.keys(project).sort()).toEqual([
         "featureIds",
         "glyph",
         "id",
         "repositoryUrl",
+        "screenshot",
         "tagIds",
         "technologyIds",
       ]);
@@ -146,6 +167,41 @@ describe("PROJECTS", () => {
   it("points every project glyph to a file that exists in public/", () => {
     for (const { id, glyph } of PROJECTS) {
       expect(existsSync(join(process.cwd(), "public", glyph)), id).toBe(true);
+    }
+  });
+
+  it("shows the Gestion Pro screenshot (spec 012, RF-12)", () => {
+    expect(PROJECTS[0].screenshot).toBe("/projects/gestion-pro.webp");
+  });
+
+  it("points every screenshot to a WebP or PNG under /projects/", () => {
+    for (const { id, screenshot } of PROJECTS) {
+      if (screenshot !== null) {
+        expect(screenshot, id).toMatch(SCREENSHOT_PATH);
+      }
+    }
+  });
+
+  it("points every screenshot to a light file in public/ (spec 012, RF-12)", () => {
+    for (const { id, screenshot } of PROJECTS) {
+      if (screenshot !== null) {
+        const file = join(process.cwd(), "public", screenshot);
+        expect(existsSync(file), id).toBe(true);
+        expect(statSync(file).size, id).toBeLessThanOrEqual(
+          MAX_SCREENSHOT_BYTES,
+        );
+      }
+    }
+  });
+
+  it("publishes every screenshot without file metadata (spec 012, RF-13)", () => {
+    for (const { id, screenshot } of PROJECTS) {
+      if (screenshot !== null) {
+        const bytes = readFileSync(join(process.cwd(), "public", screenshot));
+        for (const marker of METADATA_MARKERS) {
+          expect(bytes.includes(marker), `${id}: ${marker}`).toBe(false);
+        }
+      }
     }
   });
 
@@ -392,6 +448,98 @@ describe("glyphs", () => {
 
   it("ships the folder and Back drawings as different files", () => {
     expect(readPublic(FOLDER_GLYPH)).not.toBe(readPublic(BACK_GLYPH));
+  });
+});
+
+// Win95 button face: the gray the Back arrow is drawn on (spec 012, RF-11).
+const BUTTON_FACE = "#C0C0C0";
+const BACK_SIZE = 16;
+const OUTLINE = "#000000";
+
+function longHex(color: string): string {
+  const short = /^#([0-9A-Fa-f])([0-9A-Fa-f])([0-9A-Fa-f])$/.exec(color);
+  const long = short
+    ? `#${short[1]}${short[1]}${short[2]}${short[2]}${short[3]}${short[3]}`
+    : color;
+  return long.toUpperCase();
+}
+
+// Paints the rects in document order, so a later rect covers an earlier one.
+function backArrowPixels(svg: string): (string | null)[][] {
+  const grid: (string | null)[][] = Array.from({ length: BACK_SIZE }, () =>
+    Array.from({ length: BACK_SIZE }, () => null),
+  );
+  for (const { name, attributes } of parseElements(svg).slice(1)) {
+    expect(name, "only rects").toBe("rect");
+    const [x, y, width, height] = ["x", "y", "width", "height"].map((key) =>
+      Number(attributes[key]),
+    );
+    for (const value of [x, y, width, height]) {
+      expect(Number.isInteger(value), "whole pixels").toBe(true);
+    }
+    expect(x + width).toBeLessThanOrEqual(BACK_SIZE);
+    expect(y + height).toBeLessThanOrEqual(BACK_SIZE);
+    for (let row = y; row < y + height; row++) {
+      for (let column = x; column < x + width; column++) {
+        grid[row][column] = longHex(attributes.fill);
+      }
+    }
+  }
+  return grid;
+}
+
+describe("Back arrow (spec 012, RF-11)", () => {
+  const svg = readPublic(BACK_GLYPH);
+
+  it("is a crisp 16x16 drawing with nothing active", () => {
+    expectSafeSvg(svg);
+    expect(rootAttributes(svg)).toMatchObject({
+      width: "16",
+      height: "16",
+      viewBox: "0 0 16 16",
+      "shape-rendering": "crispEdges",
+    });
+  });
+
+  it("has a green fill and a black outline that stands out on the button gray", () => {
+    const colors = new Set(backArrowPixels(svg).flat().filter(Boolean));
+    expect(colors.size).toBe(2);
+    expect(colors.has(OUTLINE)).toBe(true);
+    const [fill] = [...colors].filter((color) => color !== OUTLINE) as string[];
+    const [red, green, blue] = [1, 3, 5].map((start) =>
+      Number.parseInt(fill.slice(start, start + 2), 16),
+    );
+    expect(green).toBeGreaterThan(red);
+    expect(green).toBeGreaterThan(blue);
+    expect(contrastRatio(OUTLINE, BUTTON_FACE)).toBeGreaterThanOrEqual(3);
+  });
+
+  it("surrounds every green pixel with the outline or more green", () => {
+    const grid = backArrowPixels(svg);
+    grid.forEach((cells, row) =>
+      cells.forEach((color, column) => {
+        if (color === null || color === OUTLINE) return;
+        for (const [r, c] of [
+          [row - 1, column],
+          [row + 1, column],
+          [row, column - 1],
+          [row, column + 1],
+        ]) {
+          expect(grid[r]?.[c] ?? null, `edge at ${column},${row}`).not.toBe(
+            null,
+          );
+        }
+      }),
+    );
+  });
+
+  it("points to the left: its tallest column is in the left half", () => {
+    const heights = Array.from(
+      { length: BACK_SIZE },
+      (_, column) =>
+        backArrowPixels(svg).filter((cells) => cells[column] !== null).length,
+    );
+    expect(heights.indexOf(Math.max(...heights))).toBeLessThan(BACK_SIZE / 2);
   });
 });
 

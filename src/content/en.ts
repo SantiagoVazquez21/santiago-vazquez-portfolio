@@ -23,6 +23,7 @@ export const en = {
         "Desktop application for the end-to-end management of an automotive electronics lab. Developed as a team using a layered architecture.",
       contribution:
         "Designed the interface system (theme and styles) and built the screens for login, customers, work orders, sales with inventory control, quotes and warranties, as well as the dark mode and the design documentation.",
+      screenshotAlt: "Screenshot of Gestion Pro",
       features: {
         customers: "Customer management",
         workOrders:

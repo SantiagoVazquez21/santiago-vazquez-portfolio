@@ -26,34 +26,56 @@ export function layoutMode(desktop: Size): LayoutMode {
     : LAYOUT_MODE.floating;
 }
 
-// Bottom of the title and the icons, in px from the top of the desktop. Both edges come
+// Right edge of the icon column and bottom edge of the title, in px from the desktop's
+// left and top edges (spec 012, RF-5).
+export type OccupiedZone = { iconsRight: number; titleBottom: number };
+// Narrowest window that opens beside the column instead of over it (spec 012, RF-6).
+export const MIN_FREE_WIDTH = 480;
+
+// The farthest of some edges, in px from the desktop's origin on the same axis. Both come
 // in viewport coordinates; rounding up keeps a fraction of a pixel from being covered.
-export function occupiedBottom(
-  elementBottoms: readonly number[],
-  desktopTop: number,
-): number {
-  if (elementBottoms.length === 0) return 0;
-  return Math.max(0, Math.ceil(Math.max(...elementBottoms) - desktopTop));
+export function farthestEdge(edges: readonly number[], origin: number): number {
+  if (edges.length === 0) return 0;
+  return Math.max(0, Math.ceil(Math.max(...edges) - origin));
 }
 
-// Centered under the occupied zone, or cascaded from the previous origin; each window
-// takes the height left under its position, down to MIN_WINDOW_HEIGHT (RF-5, D1 option A).
-// When not even that fits under the zone, the lower edge wins: the window sits as low as
-// possible, covering as little of the zone as it can, with its title bar visible.
-export function initialRect(
-  previousOrigin: Point | null,
+function firstColumn(
   desktop: Size,
-  occupied: number,
-): Rect {
+  zone: OccupiedZone,
+): Pick<Rect, "x" | "width"> {
+  const freeLeft = zone.iconsRight + WINDOW_GAP;
+  const freeWidth = desktop.width - freeLeft - WINDOW_GAP;
+  if (freeWidth >= MIN_FREE_WIDTH) {
+    const width = Math.min(DEFAULT_WINDOW_SIZE.width, freeWidth);
+    return { x: freeLeft + Math.round((freeWidth - width) / 2), width };
+  }
+  // Too little room beside the column: centered on the whole desktop, over it (RF-6).
   const width = Math.min(
     DEFAULT_WINDOW_SIZE.width,
     desktop.width - 2 * WINDOW_GAP,
   );
+  return { x: Math.round((desktop.width - width) / 2), width };
+}
+
+// Beside the icon column and under the title, or cascaded from the previous origin; each
+// window takes the height left under its position, down to MIN_WINDOW_HEIGHT (spec 012,
+// RF-5 to RF-7; spec 003, D1 option A). When not even that fits under the title, the lower
+// edge wins: the window sits as low as possible, covering as little of the title as it
+// can, with its title bar visible.
+export function initialRect(
+  previousOrigin: Point | null,
+  desktop: Size,
+  zone: OccupiedZone,
+): Rect {
+  const { x: firstX, width } = firstColumn(desktop, zone);
   const first: Point = {
-    x: Math.round((desktop.width - width) / 2),
+    x: firstX,
     y: Math.max(
       0,
-      Math.min(occupied + WINDOW_GAP, desktop.height - MIN_WINDOW_HEIGHT),
+      Math.min(
+        zone.titleBottom + WINDOW_GAP,
+        desktop.height - MIN_WINDOW_HEIGHT,
+      ),
     ),
   };
   const heightAt = (y: number) =>
@@ -63,9 +85,11 @@ export function initialRect(
       x: previousOrigin.x + CASCADE_OFFSET,
       y: previousOrigin.y + CASCADE_OFFSET,
     };
-    // Above the first position only when the zone grew since the previous window opened.
+    // Left of or above the first position only when the zone grew since the previous
+    // window opened; then the cascade would cover the column or the title.
     if (
       cascaded.y >= first.y &&
+      cascaded.x >= first.x &&
       cascaded.x + width <= desktop.width &&
       heightAt(cascaded.y) >= MIN_WINDOW_HEIGHT
     ) {

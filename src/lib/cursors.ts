@@ -6,7 +6,7 @@ export const CURSOR_ARROW_HOTSPOT = { x: 0, y: 0 } as const;
 export const CURSOR_HAND_HOTSPOT = { x: 7, y: 0 } as const;
 // Chrome and Firefox only take an SVG cursor with an explicit size.
 export const CURSOR_SIZE = 32;
-// Screen px per "pixel" of each drawing (RF-3 c): the classic arrow in 1 by 1 px
-// for a fine 45 degree side and leg (plan 007, D17), the hand in coarse 2 by 2 cells.
-export const CURSOR_ARROW_CELL = 1;
+// Screen px per "pixel" of each drawing (RF-3 c): both in coarse 2 by 2 cells, so the
+// arrow's outline is as thick as the hand's (spec 012, change 3).
+export const CURSOR_ARROW_CELL = 2;
 export const CURSOR_HAND_CELL = 2;

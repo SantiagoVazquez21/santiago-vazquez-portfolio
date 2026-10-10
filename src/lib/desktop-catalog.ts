@@ -95,6 +95,17 @@ export const DESKTOP_ICONS: readonly DesktopIconEntry[] = [
   },
 ];
 
+// Recruiter priority, top to bottom; icons of equal priority share a row (spec 012, RF-1).
+// Kept apart from DESKTOP_ICONS so the catalog order and WINDOW_IDS stay as they are (plan 012, D1).
+export const DESKTOP_ROWS: readonly (readonly IconId[])[] = [
+  ["projects"],
+  ["experience"],
+  ["about", "resume"],
+  ["skills", "education"],
+  ["contact"],
+  ["github", "linkedin"],
+];
+
 // Order of RF-2; a test checks it matches the icons with a null href.
 export const WINDOW_IDS: readonly WindowId[] = [
   "projects",

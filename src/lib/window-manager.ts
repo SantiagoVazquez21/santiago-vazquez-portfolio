@@ -4,6 +4,7 @@ import {
   fitRect,
   initialRect,
   layoutMode,
+  type OccupiedZone,
   type Point,
   type Rect,
   type Size,
@@ -49,14 +50,14 @@ function newWindow(
   state: WindowsState,
   id: WindowId,
   desktop: Size,
-  occupied: number,
+  zone: OccupiedZone,
 ): WindowState {
   if (layoutMode(desktop) === LAYOUT_MODE.fullscreen) {
     // A phone-sized rect would be useless back in floating mode; fitWindows sizes it then.
     return { id, rect: null, origin: null, minimized: false, maximized: false };
   }
   const lastOpened = state.windows.at(-1);
-  const rect = initialRect(lastOpened?.origin ?? null, desktop, occupied);
+  const rect = initialRect(lastOpened?.origin ?? null, desktop, zone);
   return {
     id,
     rect,
@@ -66,18 +67,18 @@ function newWindow(
   };
 }
 
-// occupied is the bottom of the title and the icons, in px from the top of the desktop:
-// a new floating window opens under it (RF-5).
+// zone is the icon column and the title, measured where they are painted: a new floating
+// window opens beside the column and under the title (spec 012, RF-5).
 export function openWindow(
   state: WindowsState,
   id: WindowId,
   desktop: Size,
-  occupied: number,
+  zone: OccupiedZone,
 ): WindowsState {
   const isOpen = state.windows.some((win) => win.id === id);
   if (!isOpen) {
     return {
-      windows: [...state.windows, newWindow(state, id, desktop, occupied)],
+      windows: [...state.windows, newWindow(state, id, desktop, zone)],
       stack: [...state.stack, id],
       active: id,
     };
@@ -267,7 +268,7 @@ export function moveWindow(
 export function fitWindows(
   state: WindowsState,
   desktop: Size,
-  occupied: number,
+  zone: OccupiedZone,
 ): WindowsState {
   if (layoutMode(desktop) === LAYOUT_MODE.fullscreen) {
     return state;
@@ -275,7 +276,7 @@ export function fitWindows(
   let previousOrigin: Point | null = null;
   const windows = state.windows.map((win): WindowState => {
     if (win.rect === null) {
-      const rect = initialRect(previousOrigin, desktop, occupied);
+      const rect = initialRect(previousOrigin, desktop, zone);
       const origin: Point = { x: rect.x, y: rect.y };
       previousOrigin = origin;
       return { ...win, rect, origin };

@@ -28,6 +28,8 @@ export type PortfolioContent = {
       tagline: string;
       description: string;
       contribution: string;
+      // Required even without a screenshot, so the parity check covers it (plan 012, D9).
+      screenshotAlt: string;
       // Each project shows only the features of its featureIds in the catalog.
       features: Record<FeatureId, string>;
     }

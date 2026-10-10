@@ -6,16 +6,17 @@ import {
   type KeyboardEvent,
   type MouseEvent,
   type PointerEvent,
+  type RefObject,
 } from "react";
 import { DesktopIcon } from "@/components/DesktopIcon";
 import type { Dictionary } from "@/i18n/types";
 import {
-  DESKTOP_ICONS,
+  DESKTOP_ROWS,
   type DesktopIconEntry,
   type IconId,
   type WindowId,
 } from "@/lib/desktop-catalog";
-import { iconTexts } from "@/lib/desktop-icons";
+import { desktopIconRows, iconTexts } from "@/lib/desktop-icons";
 import {
   INTENT,
   canOpen,
@@ -34,6 +35,8 @@ type DesktopProps = {
   texts: Dictionary["desktop"];
   // Owned by DesktopShell, which moves focus back to an icon after closing a window (RF-8).
   iconElements: Map<IconId, HTMLElement>;
+  // Owned by DesktopShell, which measures the title's bottom edge to open windows under it (spec 012, RF-5).
+  titleRef: RefObject<HTMLDivElement | null>;
   // Fullscreen windows cover the icons: Tab and screen readers skip them (RF-12).
   inert: boolean;
   onOpenWindow: (id: WindowId) => void;
@@ -43,12 +46,14 @@ type DesktopProps = {
 
 // The area scrolls on its own so the taskbar, outside it, never covers the last icon (plan, D3).
 // It fills <main> under the window layer, so windows never scroll with the icons (003 plan, D5).
-// The title stays in the flow above the grid, never on top of the icons (plan, decision (a)).
-// The grid's minimum column is capped at 100% so a single column still fits at high zoom (RF-14).
+// From sm (640 px, the floating-mode threshold) the title sits in a second column, centered
+// beside the icons; below it, it stays above them. It comes first in the DOM because it takes
+// no focus, so the first Tab still reaches Projects (spec 012, RF-2 and RF-3; plan 012, D2).
 export function Desktop({
   home,
   texts,
   iconElements,
+  titleRef,
   inert,
   onOpenWindow,
   onSelect,
@@ -147,30 +152,41 @@ export function Desktop({
     <div
       onClick={handleAreaClick}
       inert={inert}
-      className="absolute inset-0 overflow-y-auto px-4 py-6 text-white"
+      className="absolute inset-0 overflow-y-auto px-4 py-6 text-white sm:grid sm:grid-cols-[1fr_auto_1fr] sm:items-start sm:gap-x-6"
     >
-      <div className="mx-auto w-fit max-w-full bg-[#0A246A]/75 px-3 py-1 text-center break-words text-shadow-[1px_1px_0_#000]">
+      {/* Two equal 1fr tracks centre the title on the whole desktop; the first one never
+          shrinks below the column, so on narrow screens the title moves right instead of
+          covering an icon (spec 012, RF-3, change 1). */}
+      <div
+        ref={titleRef}
+        className="mx-auto w-fit max-w-full bg-[#0A246A]/75 px-3 py-1 text-center break-words text-shadow-[1px_1px_0_#000] sm:col-start-2 sm:row-start-1"
+      >
         <h1 className="text-2xl font-bold">{home.name}</h1>
         <p>{home.role}</p>
       </div>
+      {/* The rows are the DOM order, so Tab and screen readers go row by row (spec 012, RF-2). */}
       <div
         role="group"
         aria-label={texts.groupName}
-        className="mt-6 grid grid-cols-[repeat(auto-fill,minmax(min(6rem,100%),1fr))] gap-4"
+        className="mt-6 flex w-fit max-w-full flex-col gap-4 sm:col-start-1 sm:row-start-1 sm:mt-0"
       >
-        {DESKTOP_ICONS.map((entry) => (
-          <DesktopIcon
-            key={entry.id}
-            entry={entry}
-            texts={iconTexts(entry.id, texts)}
-            selected={selection === entry.id}
-            elementRef={registerIcon(entry.id)}
-            onFocus={() => selectIcon(entry.id)}
-            onPointerDown={handleIconPointerDown}
-            onClick={(event) => handleIconClick(entry, event)}
-            onDoubleClick={handleIconDoubleClick}
-            onKeyDown={(event) => handleIconKeyDown(entry.id, event)}
-          />
+        {desktopIconRows(DESKTOP_ROWS).map((row) => (
+          <div key={row[0].id} className="flex gap-4">
+            {row.map((entry) => (
+              <DesktopIcon
+                key={entry.id}
+                entry={entry}
+                texts={iconTexts(entry.id, texts)}
+                selected={selection === entry.id}
+                elementRef={registerIcon(entry.id)}
+                onFocus={() => selectIcon(entry.id)}
+                onPointerDown={handleIconPointerDown}
+                onClick={(event) => handleIconClick(entry, event)}
+                onDoubleClick={handleIconDoubleClick}
+                onKeyDown={(event) => handleIconKeyDown(entry.id, event)}
+              />
+            ))}
+          </div>
         ))}
       </div>
     </div>

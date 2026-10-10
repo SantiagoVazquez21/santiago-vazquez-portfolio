@@ -1,5 +1,9 @@
 import type { Dictionary } from "@/i18n/types";
-import { DESKTOP_ICONS, type IconId } from "@/lib/desktop-catalog";
+import {
+  DESKTOP_ICONS,
+  type DesktopIconEntry,
+  type IconId,
+} from "@/lib/desktop-catalog";
 
 type DesktopTexts = Dictionary["desktop"];
 type ActionNameKey = keyof DesktopTexts["actionNames"];
@@ -40,4 +44,23 @@ export function iconGlyph(id: IconId): string {
     throw new Error(`The catalog has no entry for icon "${id}".`);
   }
   return glyph;
+}
+
+const ENTRIES: ReadonlyMap<IconId, DesktopIconEntry> = new Map(
+  DESKTOP_ICONS.map((entry) => [entry.id, entry]),
+);
+
+// The rows set the visible and Tab order, since they are the DOM order (spec 012, RF-1 and RF-2).
+export function desktopIconRows(
+  rows: readonly (readonly IconId[])[],
+): readonly (readonly DesktopIconEntry[])[] {
+  return rows.map((row) =>
+    row.map((id) => {
+      const entry = ENTRIES.get(id);
+      if (entry === undefined) {
+        throw new Error(`The catalog has no entry for icon "${id}".`);
+      }
+      return entry;
+    }),
+  );
 }

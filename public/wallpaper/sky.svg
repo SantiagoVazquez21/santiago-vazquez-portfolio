@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="9" viewBox="0 0 16 9" preserveAspectRatio="none">
-  <defs>
-    <linearGradient id="sky-gradient" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#2F6FD0"/>
-      <stop offset="1" stop-color="#A9D3F5"/>
-    </linearGradient>
-  </defs>
-  <rect width="16" height="9" fill="url(#sky-gradient)"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="8" height="480" viewBox="0 0 8 480" shape-rendering="crispEdges">
+  <rect width="8" height="96" fill="#2F6FD0"/>
+  <rect x="0" y="88" width="4" height="4" fill="#4A86DA"/>
+  <rect x="4" y="92" width="4" height="4" fill="#4A86DA"/>
+  <rect y="96" width="8" height="96" fill="#4A86DA"/>
+  <rect x="0" y="184" width="4" height="4" fill="#6A9FE3"/>
+  <rect x="4" y="188" width="4" height="4" fill="#6A9FE3"/>
+  <rect y="192" width="8" height="96" fill="#6A9FE3"/>
+  <rect x="0" y="280" width="4" height="4" fill="#8BBAEC"/>
+  <rect x="4" y="284" width="4" height="4" fill="#8BBAEC"/>
+  <rect y="288" width="8" height="96" fill="#8BBAEC"/>
+  <rect x="0" y="376" width="4" height="4" fill="#A9D3F5"/>
+  <rect x="4" y="380" width="4" height="4" fill="#A9D3F5"/>
+  <rect y="384" width="8" height="96" fill="#A9D3F5"/>
 </svg>

@@ -5,6 +5,7 @@ import * as catalog from "@/lib/desktop-catalog";
 import {
   CONTACT_WINDOW_ID,
   DESKTOP_ICONS,
+  DESKTOP_ROWS,
   GITHUB_URL,
   LINKEDIN_URL,
   RESUME_FILE_NAME,
@@ -116,6 +117,32 @@ describe("DESKTOP_ICONS", () => {
       });
     },
   );
+});
+
+describe("DESKTOP_ROWS (spec 012)", () => {
+  it("is exactly the rows of RF-1, top to bottom", () => {
+    expect(DESKTOP_ROWS).toEqual([
+      ["projects"],
+      ["experience"],
+      ["about", "resume"],
+      ["skills", "education"],
+      ["contact"],
+      ["github", "linkedin"],
+    ]);
+  });
+
+  it("holds each of the 9 icons exactly once (RF-1)", () => {
+    const ids = DESKTOP_ROWS.flat();
+    expect(ids).toHaveLength(EXPECTED_ORDER.length);
+    expect([...ids].sort()).toEqual([...EXPECTED_ORDER].sort());
+  });
+
+  it("has 1 or 2 icons in every row (RF-1)", () => {
+    for (const row of DESKTOP_ROWS) {
+      expect(row.length).toBeGreaterThanOrEqual(1);
+      expect(row.length).toBeLessThanOrEqual(2);
+    }
+  });
 });
 
 describe("LINKEDIN_URL", () => {

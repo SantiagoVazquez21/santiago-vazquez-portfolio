@@ -15,9 +15,10 @@ import type { Lang } from "@/lib/locale";
 import { canDrag, canMaximize } from "@/lib/window-controls";
 import {
   LAYOUT_MODE,
+  farthestEdge,
   layoutMode,
-  occupiedBottom,
   windowFrame,
+  type OccupiedZone,
   type Point,
   type Size,
 } from "@/lib/window-geometry";
@@ -43,17 +44,25 @@ import {
 // from is the window's position and start the pointer's when the drag began.
 type Drag = { id: WindowId; pointerId: number; from: Point; start: Point };
 
-// The title sits above the icon grid, so the lowest icon closes the zone new windows open
-// under (RF-5). Measured where it is painted: the rows change with the width and the font,
-// and a scrolled icon area counts as seen (plan, section 6, "Posición inicial (T16)").
-function measureOccupied(
+// New windows open right of the icon column and under the title (spec 012, RF-5). Measured
+// where they are painted: the layout changes with the width and the font, and a scrolled
+// icon area counts as seen.
+function measureZone(
   main: HTMLElement,
+  title: HTMLElement | null,
   icons: ReadonlyMap<IconId, HTMLElement>,
-): number {
-  return occupiedBottom(
-    [...icons.values()].map((icon) => icon.getBoundingClientRect().bottom),
-    main.getBoundingClientRect().top,
-  );
+): OccupiedZone {
+  const bounds = main.getBoundingClientRect();
+  return {
+    iconsRight: farthestEdge(
+      [...icons.values()].map((icon) => icon.getBoundingClientRect().right),
+      bounds.left,
+    ),
+    titleBottom: farthestEdge(
+      title === null ? [] : [title.getBoundingClientRect().bottom],
+      bounds.top,
+    ),
+  };
 }
 
 type DesktopShellProps = {
@@ -94,6 +103,8 @@ export function DesktopShell({
   const [windowElements] = useState(() => new Map<WindowId, HTMLElement>());
   const [buttonElements] = useState(() => new Map<WindowId, HTMLElement>());
   const mainRef = useRef<HTMLElement>(null);
+  // Desktop paints the title; the shell measures it to open windows under it (spec 012, RF-5).
+  const titleRef = useRef<HTMLDivElement>(null);
   // Set by a transition and applied once its render is committed (plan, D2).
   const pendingFocus = useRef<FocusTarget | null>(null);
   // Only the pointer that pressed the handle moves the window (plan, section 6).
@@ -110,10 +121,10 @@ export function DesktopShell({
         width: entry.contentRect.width,
         height: entry.contentRect.height,
       };
-      // Read now, after layout, with the icon rows already rearranged for this size.
-      const occupied = measureOccupied(main, iconElements);
+      // Read now, after layout, with the column and the title already placed for this size.
+      const zone = measureZone(main, titleRef.current, iconElements);
       setDesktop(size);
-      setWindows((current) => fitWindows(current, size, occupied));
+      setWindows((current) => fitWindows(current, size, zone));
     });
     observer.observe(main);
     return () => observer.disconnect();
@@ -149,8 +160,8 @@ export function DesktopShell({
     const size = measuredDesktop();
     const main = mainRef.current;
     if (size === null || main === null) return;
-    const occupied = measureOccupied(main, iconElements);
-    setWindows((current) => openWindow(current, id, size, occupied));
+    const zone = measureZone(main, titleRef.current, iconElements);
+    setWindows((current) => openWindow(current, id, size, zone));
     pendingFocus.current = { kind: FOCUS_TARGET.window, id };
   }
 
@@ -243,6 +254,7 @@ export function DesktopShell({
           home={home}
           texts={desktopTexts}
           iconElements={iconElements}
+          titleRef={titleRef}
           inert={covered}
           onOpenWindow={handleOpenWindow}
           onSelect={handleSelect}

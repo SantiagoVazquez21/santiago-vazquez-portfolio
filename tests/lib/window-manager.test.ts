@@ -8,6 +8,7 @@ import {
   CASCADE_OFFSET,
   DEFAULT_WINDOW_SIZE,
   TITLE_BAR_HEIGHT,
+  type OccupiedZone,
   type Point,
   type Rect,
   type Size,
@@ -32,12 +33,12 @@ import {
 
 const LARGE_DESKTOP: Size = { width: 1280, height: 760 };
 const PHONE_DESKTOP: Size = { width: 360, height: 700 };
-// Title plus one row of icons at 1280×800, and the first position it gives (RF-5).
-const ONE_ROW_BOTTOM = 186;
-const FIRST: Point = { x: 280, y: 202 };
-// Title plus two rows of icons at 800×600.
-const TWO_ROWS_DESKTOP: Size = { width: 800, height: 560 };
-const TWO_ROWS_BOTTOM = 284;
+// Two-icon column on the left and the title beside it at 1280×800, and the first position
+// it gives: beside the column, under the title (spec 012, RF-5; plan, section 4).
+const COLUMN_ZONE: OccupiedZone = { iconsRight: 224, titleBottom: 84 };
+const FIRST: Point = { x: 392, y: 100 };
+// A 1024×768 screen: the third cascade step no longer fits across (spec 012, RF-7).
+const NARROW_DESKTOP: Size = { width: 1024, height: 728 };
 
 // Freezing the input makes any mutation throw, so "does not mutate" is checked everywhere.
 function deepFreeze<T>(value: T): T {
@@ -53,10 +54,10 @@ function deepFreeze<T>(value: T): T {
 function openAll(
   ids: readonly WindowId[],
   desktop: Size,
-  occupied = ONE_ROW_BOTTOM,
+  zone = COLUMN_ZONE,
 ): WindowsState {
   return ids.reduce(
-    (state, id) => deepFreeze(openWindow(state, id, desktop, occupied)),
+    (state, id) => deepFreeze(openWindow(state, id, desktop, zone)),
     deepFreeze(NO_WINDOWS),
   );
 }
@@ -123,16 +124,49 @@ describe("openWindow", () => {
     });
   });
 
-  it("places the first window under the occupied zone it receives", () => {
+  it("places the first window beside and under the occupied zone it receives", () => {
     const empty = deepFreeze(NO_WINDOWS);
-    expect(
-      windowOf(openWindow(empty, "projects", LARGE_DESKTOP, 0), "projects")
-        .rect,
-    ).toEqual({ x: 280, y: 16, width: 720, height: 480 });
-    expect(
-      windowOf(openWindow(empty, "projects", LARGE_DESKTOP, 300), "projects")
-        .rect,
-    ).toEqual({ x: 280, y: 316, width: 720, height: 444 });
+    const rectFor = (zone: OccupiedZone) =>
+      windowOf(openWindow(empty, "projects", LARGE_DESKTOP, zone), "projects")
+        .rect;
+    expect(rectFor({ iconsRight: 0, titleBottom: 0 })).toEqual({
+      x: 280,
+      y: 16,
+      width: 720,
+      height: 480,
+    });
+    expect(rectFor({ iconsRight: 224, titleBottom: 0 })).toEqual({
+      x: 392,
+      y: 16,
+      width: 720,
+      height: 480,
+    });
+    expect(rectFor({ iconsRight: 224, titleBottom: 300 })).toEqual({
+      x: 392,
+      y: 316,
+      width: 720,
+      height: 444,
+    });
+  });
+
+  it("opens over the column, centered, when less than MIN_FREE_WIDTH is left beside it", () => {
+    const state = openAll(["projects"], { width: 640, height: 600 });
+    expect(windowOf(state, "projects").rect).toEqual({
+      x: 16,
+      y: 100,
+      width: 608,
+      height: 480,
+    });
+  });
+
+  it("narrows the window to the free space beside the column instead of covering it", () => {
+    const state = openAll(["projects"], { width: 800, height: 520 });
+    expect(windowOf(state, "projects").rect).toEqual({
+      x: 240,
+      y: 100,
+      width: 544,
+      height: 420,
+    });
   });
 
   it("cascades the second window from the first one", () => {
@@ -146,7 +180,7 @@ describe("openWindow", () => {
       width: 720,
       height: 480,
     });
-    expect(windowOf(state, "about").origin).toEqual({ x: 312, y: 234 });
+    expect(windowOf(state, "about").origin).toEqual({ x: 424, y: 132 });
   });
 
   it("cascades from the origin of the last opened window even after it moved", () => {
@@ -154,10 +188,10 @@ describe("openWindow", () => {
     const moved = withWindow(opened, "about", {
       rect: { x: 400, y: 0, width: 720, height: 480 },
     });
-    const state = openWindow(moved, "skills", LARGE_DESKTOP, ONE_ROW_BOTTOM);
+    const state = openWindow(moved, "skills", LARGE_DESKTOP, COLUMN_ZONE);
     expect(windowOf(state, "skills").rect).toEqual({
-      x: 344,
-      y: 266,
+      x: 456,
+      y: 164,
       width: 720,
       height: 480,
     });
@@ -166,59 +200,63 @@ describe("openWindow", () => {
   it("cascades from the last opened window even when it is minimized", () => {
     const opened = openAll(["projects", "about"], LARGE_DESKTOP);
     const minimized = withWindow(opened, "about", { minimized: true });
-    const state = openWindow(
-      minimized,
-      "skills",
-      LARGE_DESKTOP,
-      ONE_ROW_BOTTOM,
-    );
-    expect(windowOf(state, "skills").origin).toEqual({ x: 344, y: 266 });
+    const state = openWindow(minimized, "skills", LARGE_DESKTOP, COLUMN_ZONE);
+    expect(windowOf(state, "skills").origin).toEqual({ x: 456, y: 164 });
   });
 
   it("cascades from the last opened window, not from the active one", () => {
     const opened = openAll(["projects", "about"], LARGE_DESKTOP);
     const reactivated = deepFreeze(activateWindow(opened, "projects"));
-    const state = openWindow(
-      reactivated,
-      "skills",
-      LARGE_DESKTOP,
-      ONE_ROW_BOTTOM,
-    );
-    expect(windowOf(state, "skills").origin).toEqual({ x: 344, y: 266 });
+    const state = openWindow(reactivated, "skills", LARGE_DESKTOP, COLUMN_ZONE);
+    expect(windowOf(state, "skills").origin).toEqual({ x: 456, y: 164 });
   });
 
-  it("shrinks the later cascades and goes back to the first position when the cascade does not fit", () => {
+  it("shrinks the later cascades and goes back to the first position when the next one is too short", () => {
     const state = openAll(
-      ["projects", "about", "skills", "contact"],
-      TWO_ROWS_DESKTOP,
-      TWO_ROWS_BOTTOM,
+      ["projects", "about", "skills", "contact", "education"],
+      { width: 1280, height: 560 },
+      { iconsRight: 224, titleBottom: 284 },
     );
     expect(state.windows.map((win) => win.rect)).toEqual([
-      { x: 40, y: 300, width: 720, height: 260 },
-      { x: 72, y: 332, width: 720, height: 228 },
-      { x: 40, y: 300, width: 720, height: 260 },
-      { x: 72, y: 332, width: 720, height: 228 },
-    ]);
-    expect(state.windows.map((win) => win.origin)).toEqual([
-      { x: 40, y: 300 },
-      { x: 72, y: 332 },
-      { x: 40, y: 300 },
-      { x: 72, y: 332 },
+      { x: 392, y: 300, width: 720, height: 260 },
+      { x: 424, y: 332, width: 720, height: 228 },
+      { x: 456, y: 364, width: 720, height: 196 },
+      { x: 488, y: 396, width: 720, height: 164 },
+      { x: 392, y: 300, width: 720, height: 260 },
     ]);
   });
 
-  it("opens the six windows cascaded under one row of icons, the last ones shorter", () => {
+  it("goes back to the first position beside the column when the cascade does not fit across", () => {
+    const state = openAll(
+      ["projects", "about", "skills", "contact"],
+      NARROW_DESKTOP,
+    );
+    expect(state.windows.map((win) => win.rect)).toEqual([
+      { x: 264, y: 100, width: 720, height: 480 },
+      { x: 296, y: 132, width: 720, height: 480 },
+      { x: 264, y: 100, width: 720, height: 480 },
+      { x: 296, y: 132, width: 720, height: 480 },
+    ]);
+    expect(state.windows.map((win) => win.origin)).toEqual([
+      { x: 264, y: 100 },
+      { x: 296, y: 132 },
+      { x: 264, y: 100 },
+      { x: 296, y: 132 },
+    ]);
+  });
+
+  it("opens the six windows cascaded beside the column and under the title", () => {
     const state = openAll(
       ["projects", "about", "experience", "skills", "education", "contact"],
       LARGE_DESKTOP,
     );
     expect(state.windows.map((win) => win.rect)).toEqual([
-      { x: 280, y: 202, width: 720, height: 480 },
-      { x: 312, y: 234, width: 720, height: 480 },
-      { x: 344, y: 266, width: 720, height: 480 },
-      { x: 376, y: 298, width: 720, height: 462 },
-      { x: 408, y: 330, width: 720, height: 430 },
-      { x: 440, y: 362, width: 720, height: 398 },
+      { x: 392, y: 100, width: 720, height: 480 },
+      { x: 424, y: 132, width: 720, height: 480 },
+      { x: 456, y: 164, width: 720, height: 480 },
+      { x: 488, y: 196, width: 720, height: 480 },
+      { x: 520, y: 228, width: 720, height: 480 },
+      { x: 552, y: 260, width: 720, height: 480 },
     ]);
   });
 
@@ -241,7 +279,7 @@ describe("openWindow", () => {
 
   it("uses the first position after a window opened in fullscreen", () => {
     const onPhone = openAll(["projects"], PHONE_DESKTOP);
-    const state = openWindow(onPhone, "about", LARGE_DESKTOP, ONE_ROW_BOTTOM);
+    const state = openWindow(onPhone, "about", LARGE_DESKTOP, COLUMN_ZONE);
     expect(windowOf(state, "about").rect).toEqual({
       ...FIRST,
       width: 720,
@@ -251,7 +289,10 @@ describe("openWindow", () => {
 
   it("does not duplicate an open window: raises it and makes it active", () => {
     const opened = openAll(["projects", "about", "skills"], LARGE_DESKTOP);
-    const state = openWindow(opened, "projects", LARGE_DESKTOP, 400);
+    const state = openWindow(opened, "projects", LARGE_DESKTOP, {
+      iconsRight: 400,
+      titleBottom: 400,
+    });
     expect(state.windows).toEqual(opened.windows);
     expect(state.stack).toEqual(["about", "skills", "projects"]);
     expect(state.active).toBe("projects");
@@ -265,7 +306,10 @@ describe("openWindow", () => {
       minimized: true,
       maximized: true,
     });
-    const state = openWindow(minimized, "projects", LARGE_DESKTOP, 400);
+    const state = openWindow(minimized, "projects", LARGE_DESKTOP, {
+      iconsRight: 400,
+      titleBottom: 400,
+    });
     expect(windowOf(state, "projects")).toEqual({
       id: "projects",
       rect,
@@ -280,7 +324,7 @@ describe("openWindow", () => {
   it("reopening an open window from an inactive desktop makes it active", () => {
     const opened = openAll(["projects", "about"], LARGE_DESKTOP);
     const inactive = deepFreeze(deactivateAll(opened));
-    const state = openWindow(inactive, "about", LARGE_DESKTOP, ONE_ROW_BOTTOM);
+    const state = openWindow(inactive, "about", LARGE_DESKTOP, COLUMN_ZONE);
     expect(state.active).toBe("about");
     expect(state.stack).toEqual(["projects", "about"]);
   });
@@ -438,11 +482,11 @@ describe("closeWindow", () => {
       maximized: true,
     });
     const closed = deepFreeze(closeWindow(changed, "about").state);
-    const state = openWindow(closed, "about", LARGE_DESKTOP, ONE_ROW_BOTTOM);
+    const state = openWindow(closed, "about", LARGE_DESKTOP, COLUMN_ZONE);
     expect(windowOf(state, "about")).toEqual({
       id: "about",
-      rect: { x: 312, y: 234, width: 720, height: 480 },
-      origin: { x: 312, y: 234 },
+      rect: { x: 424, y: 132, width: 720, height: 480 },
+      origin: { x: 424, y: 132 },
       minimized: false,
       maximized: false,
     });
@@ -600,8 +644,8 @@ describe("moveWindow", () => {
       LARGE_DESKTOP,
     );
     expect(windowOf(state, "projects").rect).toEqual({
-      x: 380,
-      y: 252,
+      x: 492,
+      y: 150,
       width: 720,
       height: 480,
     });
@@ -697,20 +741,22 @@ describe("moveWindow", () => {
 describe("fitWindows", () => {
   it("returns the same state on a fullscreen desktop, keeping the floating rects", () => {
     const opened = openAll(["projects", "about"], LARGE_DESKTOP);
-    expect(fitWindows(opened, PHONE_DESKTOP, ONE_ROW_BOTTOM)).toBe(opened);
-    expect(
-      fitWindows(opened, { width: 1280, height: 499 }, ONE_ROW_BOTTOM),
-    ).toBe(opened);
+    expect(fitWindows(opened, PHONE_DESKTOP, COLUMN_ZONE)).toBe(opened);
+    expect(fitWindows(opened, { width: 1280, height: 499 }, COLUMN_ZONE)).toBe(
+      opened,
+    );
   });
 
   it("leaves windows that already fit as they are", () => {
     const opened = openAll(["projects", "about"], LARGE_DESKTOP);
-    expect(fitWindows(opened, LARGE_DESKTOP, ONE_ROW_BOTTOM)).toEqual(opened);
+    expect(fitWindows(opened, LARGE_DESKTOP, COLUMN_ZONE)).toEqual(opened);
   });
 
   it("does not move a window that already has a rect when the occupied zone grows", () => {
     const opened = openAll(["projects", "about"], LARGE_DESKTOP);
-    expect(fitWindows(opened, LARGE_DESKTOP, 500)).toEqual(opened);
+    expect(
+      fitWindows(opened, LARGE_DESKTOP, { iconsRight: 400, titleBottom: 500 }),
+    ).toEqual(opened);
   });
 
   it("shrinks a window larger than the desktop and moves it back inside", () => {
@@ -718,11 +764,7 @@ describe("fitWindows", () => {
     const moved = withWindow(opened, "projects", {
       rect: { x: 500, y: 300, width: 720, height: 480 },
     });
-    const state = fitWindows(
-      moved,
-      { width: 680, height: 520 },
-      ONE_ROW_BOTTOM,
-    );
+    const state = fitWindows(moved, { width: 680, height: 520 }, COLUMN_ZONE);
     expect(windowOf(state, "projects").rect).toEqual({
       x: 0,
       y: 300,
@@ -738,7 +780,7 @@ describe("fitWindows", () => {
     });
     const desktop: Size = { width: 1000, height: 600 };
     expect(
-      windowOf(fitWindows(moved, desktop, ONE_ROW_BOTTOM), "projects").rect,
+      windowOf(fitWindows(moved, desktop, COLUMN_ZONE), "projects").rect,
     ).toEqual({
       x: 200,
       y: desktop.height - TITLE_BAR_HEIGHT,
@@ -754,11 +796,7 @@ describe("fitWindows", () => {
       "about",
       { minimized: true },
     );
-    const state = fitWindows(
-      changed,
-      { width: 700, height: 520 },
-      ONE_ROW_BOTTOM,
-    );
+    const state = fitWindows(changed, { width: 700, height: 520 }, COLUMN_ZONE);
     expect(state.stack).toEqual(changed.stack);
     expect(state.active).toBe(changed.active);
     expect(state.windows.map((win) => win.id)).toEqual([
@@ -775,7 +813,7 @@ describe("fitWindows", () => {
 
   it("gives a window opened in fullscreen the default size at the first position", () => {
     const onPhone = openAll(["projects"], PHONE_DESKTOP);
-    const state = fitWindows(onPhone, LARGE_DESKTOP, ONE_ROW_BOTTOM);
+    const state = fitWindows(onPhone, LARGE_DESKTOP, COLUMN_ZONE);
     expect(windowOf(state, "projects")).toEqual({
       id: "projects",
       rect: { ...FIRST, ...DEFAULT_WINDOW_SIZE },
@@ -786,39 +824,48 @@ describe("fitWindows", () => {
   });
 
   it("places a window opened in fullscreen under the occupied zone measured in this call", () => {
-    const onPhone = openAll(["projects"], PHONE_DESKTOP, 0);
-    const state = fitWindows(onPhone, LARGE_DESKTOP, 300);
+    const onPhone = openAll(["projects"], PHONE_DESKTOP, {
+      iconsRight: 0,
+      titleBottom: 0,
+    });
+    const state = fitWindows(onPhone, LARGE_DESKTOP, {
+      iconsRight: 224,
+      titleBottom: 300,
+    });
     expect(windowOf(state, "projects").rect).toEqual({
-      x: 280,
+      x: 392,
       y: 316,
       width: 720,
       height: 444,
     });
   });
 
-  it("gives it what fits when the desktop is smaller than the default size", () => {
+  it("gives it what fits over the column when the desktop is too narrow beside it", () => {
     const onPhone = openAll(["projects"], PHONE_DESKTOP);
     const desktop: Size = { width: 650, height: 500 };
     expect(
-      windowOf(fitWindows(onPhone, desktop, 100), "projects").rect,
+      windowOf(
+        fitWindows(onPhone, desktop, { iconsRight: 224, titleBottom: 100 }),
+        "projects",
+      ).rect,
     ).toEqual({ x: 16, y: 116, width: 618, height: 384 });
   });
 
   it("cascades a window opened in fullscreen after the previous one in opening order", () => {
     const opened = openAll(["projects"], LARGE_DESKTOP);
     const state = fitWindows(
-      deepFreeze(openWindow(opened, "about", PHONE_DESKTOP, ONE_ROW_BOTTOM)),
+      deepFreeze(openWindow(opened, "about", PHONE_DESKTOP, COLUMN_ZONE)),
       LARGE_DESKTOP,
-      ONE_ROW_BOTTOM,
+      COLUMN_ZONE,
     );
     expect(windowOf(state, "projects")).toEqual(windowOf(opened, "projects"));
     expect(windowOf(state, "about").rect).toEqual({
-      x: 312,
-      y: 234,
+      x: 424,
+      y: 132,
       width: 720,
       height: 480,
     });
-    expect(windowOf(state, "about").origin).toEqual({ x: 312, y: 234 });
+    expect(windowOf(state, "about").origin).toEqual({ x: 424, y: 132 });
   });
 
   it("cascades from the origin of the previous window, not from where it was moved", () => {
@@ -827,36 +874,52 @@ describe("fitWindows", () => {
       rect: { x: 400, y: 0, width: 720, height: 480 },
     });
     const state = fitWindows(
-      deepFreeze(openWindow(moved, "about", PHONE_DESKTOP, ONE_ROW_BOTTOM)),
+      deepFreeze(openWindow(moved, "about", PHONE_DESKTOP, COLUMN_ZONE)),
       LARGE_DESKTOP,
-      ONE_ROW_BOTTOM,
+      COLUMN_ZONE,
     );
-    expect(windowOf(state, "about").origin).toEqual({ x: 312, y: 234 });
+    expect(windowOf(state, "about").origin).toEqual({ x: 424, y: 132 });
   });
 
   it("restarts at the first position when the zone grew above the cascade", () => {
     const opened = openAll(["projects"], LARGE_DESKTOP);
     const state = fitWindows(
-      deepFreeze(openWindow(opened, "about", PHONE_DESKTOP, ONE_ROW_BOTTOM)),
+      deepFreeze(openWindow(opened, "about", PHONE_DESKTOP, COLUMN_ZONE)),
       LARGE_DESKTOP,
-      400,
+      { iconsRight: 224, titleBottom: 400 },
     );
     expect(windowOf(state, "projects")).toEqual(windowOf(opened, "projects"));
     expect(windowOf(state, "about").rect).toEqual({
-      x: 280,
+      x: 392,
       y: 416,
       width: 720,
       height: 344,
     });
   });
 
+  it("restarts at the first position when the column grew past the cascade", () => {
+    const opened = openAll(["projects"], LARGE_DESKTOP);
+    const state = fitWindows(
+      deepFreeze(openWindow(opened, "about", PHONE_DESKTOP, COLUMN_ZONE)),
+      LARGE_DESKTOP,
+      { iconsRight: 300, titleBottom: 84 },
+    );
+    expect(windowOf(state, "projects")).toEqual(windowOf(opened, "projects"));
+    expect(windowOf(state, "about").rect).toEqual({
+      x: 430,
+      y: 100,
+      width: 720,
+      height: 480,
+    });
+  });
+
   it("cascades windows opened in fullscreen between themselves", () => {
     const onPhone = openAll(["projects", "about", "skills"], PHONE_DESKTOP);
-    const state = fitWindows(onPhone, LARGE_DESKTOP, ONE_ROW_BOTTOM);
+    const state = fitWindows(onPhone, LARGE_DESKTOP, COLUMN_ZONE);
     expect(state.windows.map((win) => win.rect)).toEqual([
-      { x: 280, y: 202, width: 720, height: 480 },
-      { x: 312, y: 234, width: 720, height: 480 },
-      { x: 344, y: 266, width: 720, height: 480 },
+      { x: 392, y: 100, width: 720, height: 480 },
+      { x: 424, y: 132, width: 720, height: 480 },
+      { x: 456, y: 164, width: 720, height: 480 },
     ]);
   });
 
@@ -865,19 +928,19 @@ describe("fitWindows", () => {
       ["projects", "about", "skills", "contact"],
       PHONE_DESKTOP,
     );
-    const state = fitWindows(onPhone, TWO_ROWS_DESKTOP, TWO_ROWS_BOTTOM);
+    const state = fitWindows(onPhone, NARROW_DESKTOP, COLUMN_ZONE);
     expect(state.windows.map((win) => win.origin)).toEqual([
-      { x: 40, y: 300 },
-      { x: 72, y: 332 },
-      { x: 40, y: 300 },
-      { x: 72, y: 332 },
+      { x: 264, y: 100 },
+      { x: 296, y: 132 },
+      { x: 264, y: 100 },
+      { x: 296, y: 132 },
     ]);
   });
 
   it("keeps the maximized flag of a window that never was floating", () => {
     const onPhone = openAll(["projects"], PHONE_DESKTOP);
     const maximized = deepFreeze(toggleMaximize(onPhone, "projects"));
-    const state = fitWindows(maximized, LARGE_DESKTOP, ONE_ROW_BOTTOM);
+    const state = fitWindows(maximized, LARGE_DESKTOP, COLUMN_ZONE);
     expect(windowOf(state, "projects").maximized).toBe(true);
     expect(windowOf(state, "projects").rect).toEqual({
       ...FIRST,
@@ -891,10 +954,10 @@ describe("fitWindows", () => {
         openAll(["projects", "about"], PHONE_DESKTOP),
         "skills",
         LARGE_DESKTOP,
-        ONE_ROW_BOTTOM,
+        COLUMN_ZONE,
       ),
     );
-    const state = fitWindows(mixed, LARGE_DESKTOP, ONE_ROW_BOTTOM);
+    const state = fitWindows(mixed, LARGE_DESKTOP, COLUMN_ZONE);
     for (const win of state.windows) {
       expect(win.rect).not.toBeNull();
       expect(win.origin).not.toBeNull();
@@ -903,15 +966,15 @@ describe("fitWindows", () => {
 
   it("recovers the last floating rects after a round trip through fullscreen", () => {
     const opened = openAll(["projects", "about"], LARGE_DESKTOP);
-    const onPhone = deepFreeze(
-      fitWindows(opened, PHONE_DESKTOP, ONE_ROW_BOTTOM),
-    );
-    expect(fitWindows(onPhone, LARGE_DESKTOP, 400)).toEqual(opened);
+    const onPhone = deepFreeze(fitWindows(opened, PHONE_DESKTOP, COLUMN_ZONE));
+    expect(
+      fitWindows(onPhone, LARGE_DESKTOP, { iconsRight: 400, titleBottom: 400 }),
+    ).toEqual(opened);
   });
 
   it("keeps an empty desktop empty", () => {
     expect(
-      fitWindows(deepFreeze(NO_WINDOWS), LARGE_DESKTOP, ONE_ROW_BOTTOM),
+      fitWindows(deepFreeze(NO_WINDOWS), LARGE_DESKTOP, COLUMN_ZONE),
     ).toEqual(NO_WINDOWS);
   });
 });
@@ -920,8 +983,8 @@ describe("immutability", () => {
   it("returns new states and never mutates the one it receives", () => {
     const opened = openAll(["projects", "about"], LARGE_DESKTOP);
     const snapshot = structuredClone(opened);
-    openWindow(opened, "skills", LARGE_DESKTOP, ONE_ROW_BOTTOM);
-    openWindow(opened, "projects", LARGE_DESKTOP, ONE_ROW_BOTTOM);
+    openWindow(opened, "skills", LARGE_DESKTOP, COLUMN_ZONE);
+    openWindow(opened, "projects", LARGE_DESKTOP, COLUMN_ZONE);
     activateWindow(opened, "projects");
     deactivateAll(opened);
     topVisibleWindow(opened);
@@ -933,11 +996,11 @@ describe("immutability", () => {
     moveWindow(
       opened,
       "about",
-      { x: 312, y: 234 },
+      { x: 424, y: 132 },
       { x: 10, y: 10 },
       LARGE_DESKTOP,
     );
-    fitWindows(opened, { width: 700, height: 520 }, ONE_ROW_BOTTOM);
+    fitWindows(opened, { width: 700, height: 520 }, COLUMN_ZONE);
     expect(opened).toEqual(snapshot);
   });
 });
@@ -950,7 +1013,7 @@ describe("opening Contact from About (spec 010)", () => {
       withAbout,
       CONTACT_WINDOW_ID,
       LARGE_DESKTOP,
-      ONE_ROW_BOTTOM,
+      COLUMN_ZONE,
     );
     expect(next.windows.map((win) => win.id)).toEqual([
       "about",
@@ -967,7 +1030,7 @@ describe("opening Contact from About (spec 010)", () => {
       opened,
       CONTACT_WINDOW_ID,
       LARGE_DESKTOP,
-      ONE_ROW_BOTTOM,
+      COLUMN_ZONE,
     );
     expect(
       next.windows.filter((win) => win.id === CONTACT_WINDOW_ID),
@@ -990,7 +1053,7 @@ describe("opening Contact from About (spec 010)", () => {
       opened,
       CONTACT_WINDOW_ID,
       LARGE_DESKTOP,
-      ONE_ROW_BOTTOM,
+      COLUMN_ZONE,
     );
     const contact = windowOf(next, CONTACT_WINDOW_ID);
     expect(contact.minimized).toBe(false);
@@ -1003,13 +1066,13 @@ describe("opening Contact from About (spec 010)", () => {
   it("keeps a single Contact when opened twice in a row", () => {
     const withAbout = openAll(["about"], LARGE_DESKTOP);
     const once = deepFreeze(
-      openWindow(withAbout, CONTACT_WINDOW_ID, LARGE_DESKTOP, ONE_ROW_BOTTOM),
+      openWindow(withAbout, CONTACT_WINDOW_ID, LARGE_DESKTOP, COLUMN_ZONE),
     );
     const twice = openWindow(
       once,
       CONTACT_WINDOW_ID,
       LARGE_DESKTOP,
-      ONE_ROW_BOTTOM,
+      COLUMN_ZONE,
     );
     expect(
       twice.windows.filter((win) => win.id === CONTACT_WINDOW_ID),

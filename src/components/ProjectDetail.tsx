@@ -26,7 +26,7 @@ export function ProjectDetail({
 }: ProjectDetailProps) {
   const featuresId = useId();
   const technologiesId = useId();
-  const { name, tagline, description, contribution, features } =
+  const { name, tagline, description, contribution, features, screenshotAlt } =
     content.projects[project.id];
 
   return (
@@ -70,6 +70,16 @@ export function ProjectDetail({
           label={texts.projectTags}
         />
       </div>
+      {/* Sunken like the chips (RNF-1). Shrinking only by width keeps its proportions and never
+          widens the body at 360 px (RF-12). No size in the catalogue, by the owner's choice (D8). */}
+      {project.screenshot !== null && (
+        <img
+          src={project.screenshot}
+          alt={screenshotAlt}
+          draggable={false}
+          className="mt-4 block h-auto max-w-full border-2 border-t-black border-r-[#808080] border-b-[#808080] border-l-black"
+        />
+      )}
       <p className="mt-4">{description}</p>
       <h4 className="mt-4 font-bold">{texts.contribution}</h4>
       <p className="mt-1">{contribution}</p>

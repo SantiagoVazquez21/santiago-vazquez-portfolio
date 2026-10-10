@@ -162,10 +162,23 @@ const PROJECT_TAGS_ANNEX_A = {
   en: { teamWork: "Developed as a team", desktopApp: "Desktop app" },
 } as const;
 
+// Annex A of spec 012, letter by letter.
+const SCREENSHOT_ALT_ANNEX_A = {
+  es: "Captura de pantalla de Gestion Pro",
+  en: "Screenshot of Gestion Pro",
+} as const;
+
 describe.each(LANGS)("CONTENT.%s projects (spec 008, annex A)", (lang) => {
   it("matches annex A for Gestion Pro", () => {
-    expect(CONTENT[lang].projects.gestionPro).toEqual(
-      GESTION_PRO_ANNEX_A[lang],
+    expect(CONTENT[lang].projects.gestionPro).toEqual({
+      ...GESTION_PRO_ANNEX_A[lang],
+      screenshotAlt: SCREENSHOT_ALT_ANNEX_A[lang],
+    });
+  });
+
+  it("matches annex A of spec 012 for the screenshot text (RF-13)", () => {
+    expect(CONTENT[lang].projects.gestionPro.screenshotAlt).toBe(
+      SCREENSHOT_ALT_ANNEX_A[lang],
     );
   });
 

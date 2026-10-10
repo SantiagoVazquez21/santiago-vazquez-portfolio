@@ -27,53 +27,29 @@ const RECT_ATTRIBUTES = ["fill", "height", "width", "x", "y"];
 type Cell = string | undefined;
 type Hotspot = { readonly x: number; readonly y: number };
 
-// Classic arrow of plan 007, section 7 (redrawn on 2026-10-09): 1 by 1 px,
-// B white, N black, "." transparent. Everything right of or below the map is
-// transparent too.
+// The owner's classic arrow (spec 012, change 2) redrawn in the hand's coarse
+// 2 by 2 cells for the same thick outline (change 3): B white, N black,
+// "." transparent. Everything right of or below the map is transparent too.
 const ARROW_MAP = [
-  "B",
-  "BB",
-  "BBB",
-  "BBBB",
-  "BBNBB",
-  "BBNNBB",
-  "BBNNNBB",
-  "BBNNNNBB",
-  "BBNNNNNBB",
-  "BBNNNNNNBB",
-  "BBNNNNNNNBB",
-  "BBNNNNNNNNBB",
-  "BBNNNNNNNNNBB",
-  "BBNNNNNNNNNNBB",
-  "BBNNNNNNNNNNNBB",
-  "BBNNNNNNNNNNNNBB",
-  "BBNNNNNNNNNNNNNBB",
-  "BBBBNNNBBBBBBBBBB",
-  "BBBBNNNBBBBBBBBBB",
-  "...BBNNNBB",
-  "...BBNNNBB",
-  "....BBNNNBB",
-  "....BBNNNBB",
-  ".....BBNNNBB",
-  ".....BBNNNBB",
-  "......BBNNNBB",
-  "......BBBBBBB",
-  "......BBBBBBB",
+  "N",
+  "NN",
+  "NBN",
+  "NBBN",
+  "NBBBN",
+  "NBBBBN",
+  "NBBBBBN",
+  "NBBBBBBN",
+  "NBBBBBBBN",
+  "NBBBBNNNN",
+  "NBBNBBN",
+  "NBN.NBBN",
+  "NN..NBBN",
+  "N....NBBN",
+  ".....NBBN",
+  "......NN",
 ];
-// The arrow's parts (plan 007, section 7), checked apart from the map so a
-// redrawn map cannot quietly drop the traits that set it apart from Windows.
-const ARROW_TIP_ROWS = 17;
-const ARROW_FILLED_TIP_FIRST_ROW = 4;
-const ARROW_BORDER = 2;
-const ARROW_BASE_ROWS = [17, 18] as const;
-const ARROW_LEG_FIRST_COLUMN = 4;
-const ARROW_LEG_LAST_ROW = 25;
-const ARROW_LEG_FILL = 3;
-const ARROW_CUT_ROWS = [26, 27] as const;
-const ARROW_CUT_COLUMNS = [6, 12] as const;
-// RF-13: 16 to 24 px wide, 24 to 32 px high.
-const ARROW_WIDTH_RANGE = [16, 24];
-const ARROW_HEIGHT_RANGE = [24, 32];
+// 9 by 16 cells, 18 by 32 px: as big as the hand.
+const ARROW_SIZE = [18, 32];
 const MAP_COLORS: Record<string, Cell> = { B: WHITE, N: BLACK, ".": undefined };
 
 // 10 by 14 cells, 20 by 28 px (plan 007, section 7).
@@ -176,41 +152,10 @@ function expectClosedOutline(grid: Cell[][]): void {
   if (white === 0) throw new Error("No white fill");
 }
 
-// A black pixel touching a transparent one, or the canvas edge, even on a
-// diagonal, would melt into a dark background: the white border has to seal
-// the whole arrow (plan 007, section 7).
-function expectSealedFill(grid: Cell[][]): void {
-  let black = 0;
-  grid.forEach((cells, row) =>
-    cells.forEach((cell, column) => {
-      if (cell !== BLACK) return;
-      black++;
-      for (let down = -1; down <= 1; down++) {
-        for (let right = -1; right <= 1; right++) {
-          if (grid[row + down]?.[column + right] === undefined) {
-            throw new Error(`Black pixel ${column},${row} without border`);
-          }
-        }
-      }
-    }),
-  );
-  if (black === 0) throw new Error("No black fill");
-}
-
-function columnsOf(cells: readonly Cell[], color: Cell): number[] {
-  return cells
-    .map((cell, column) => (cell === color ? column : -1))
-    .filter((column) => column >= 0);
-}
-
 function paintedColumns(cells: readonly Cell[]): number[] {
   return cells
     .map((cell, column) => (cell === undefined ? -1 : column))
     .filter((column) => column >= 0);
-}
-
-function span(first: number, last: number): number[] {
-  return Array.from({ length: last - first + 1 }, (_value, i) => first + i);
 }
 
 describe("cursor constants (RF-13, RF-14)", () => {
@@ -221,9 +166,9 @@ describe("cursor constants (RF-13, RF-14)", () => {
     expect(CURSOR_HAND_HOTSPOT).toEqual({ x: 7, y: 0 });
   });
 
-  it("draw on a 32 px canvas, the arrow in 1 by 1 px and the hand in 2 by 2 cells (RF-3 c)", () => {
+  it("draw on a 32 px canvas, both in 2 by 2 cells (RF-3 c; spec 012, change 3)", () => {
     expect(CURSOR_SIZE).toBe(32);
-    expect(CURSOR_ARROW_CELL).toBe(1);
+    expect(CURSOR_ARROW_CELL).toBe(2);
     expect(CURSOR_HAND_CELL).toBe(2);
     expect(CURSOR_SIZE % CURSOR_ARROW_CELL).toBe(0);
     expect(CURSOR_SIZE % CURSOR_HAND_CELL).toBe(0);
@@ -275,16 +220,16 @@ describe.each(CURSORS)(
   },
 );
 
-describe("arrow.svg (RF-3 c, RF-13)", () => {
+describe("arrow.svg (spec 012, changes 2 and 3)", () => {
   let grid: Cell[][] = [];
 
   beforeAll(() => {
     grid = paintCursor(readPublic(CURSOR_ARROW_SRC), CURSOR_ARROW_CELL);
   });
 
-  it("matches the classic arrow map pixel by pixel, transparent outside it", () => {
+  it("matches the owner's arrow map pixel by pixel, transparent outside it", () => {
     const expected = mapGrid(ARROW_MAP, CURSOR_SIZE / CURSOR_ARROW_CELL);
-    expect(grid).toHaveLength(CURSOR_SIZE);
+    expect(grid).toHaveLength(CURSOR_SIZE / CURSOR_ARROW_CELL);
     grid.forEach((cells, row) =>
       cells.forEach((color, column) =>
         expect(color, `pixel ${column},${row}`).toBe(expected[row][column]),
@@ -292,96 +237,24 @@ describe("arrow.svg (RF-3 c, RF-13)", () => {
     );
   });
 
-  it("paints a 17 by 28 px box from the top left corner, within the RF-13 range", () => {
+  it("paints an 18 by 32 px box from the top left corner", () => {
     const { columns, rows } = paintedBox(grid);
-    const width = (Math.max(...columns) + 1) * CURSOR_ARROW_CELL;
-    const height = (Math.max(...rows) + 1) * CURSOR_ARROW_CELL;
     expect(Math.min(...columns)).toBe(0);
     expect(Math.min(...rows)).toBe(0);
-    expect([width, height]).toEqual([17, 28]);
-    expect(width).toBeGreaterThanOrEqual(ARROW_WIDTH_RANGE[0]);
-    expect(width).toBeLessThanOrEqual(ARROW_WIDTH_RANGE[1]);
-    expect(height).toBeGreaterThanOrEqual(ARROW_HEIGHT_RANGE[0]);
-    expect(height).toBeLessThanOrEqual(ARROW_HEIGHT_RANGE[1]);
+    expect([
+      (Math.max(...columns) + 1) * CURSOR_ARROW_CELL,
+      (Math.max(...rows) + 1) * CURSOR_ARROW_CELL,
+    ]).toEqual(ARROW_SIZE);
   });
 
-  it("keeps the tip white at the hotspot", () => {
+  it("keeps the tip black at the hotspot", () => {
     expect(hotspotCell(grid, CURSOR_ARROW_HOTSPOT, CURSOR_ARROW_CELL)).toBe(
-      WHITE,
+      BLACK,
     );
   });
 
-  it("has a long tip with a vertical left side and a 45 degree right side", () => {
-    for (let row = 0; row < ARROW_TIP_ROWS; row++) {
-      expect(paintedColumns(grid[row]), `row ${row}`).toEqual(span(0, row));
-    }
-  });
-
-  it("borders the tip with 2 px of white, also on the diagonal", () => {
-    for (let row = 0; row < ARROW_FILLED_TIP_FIRST_ROW; row++) {
-      expect(columnsOf(grid[row], WHITE), `row ${row}`).toEqual(span(0, row));
-    }
-    for (let row = ARROW_FILLED_TIP_FIRST_ROW; row < ARROW_TIP_ROWS; row++) {
-      expect(columnsOf(grid[row], WHITE), `row ${row}`).toEqual([
-        ...span(0, ARROW_BORDER - 1),
-        ...span(row - ARROW_BORDER + 1, row),
-      ]);
-      expect(columnsOf(grid[row], BLACK), `row ${row}`).toEqual(
-        span(ARROW_BORDER, row - ARROW_BORDER),
-      );
-    }
-  });
-
-  it("has a flat 2 px base across the tip, crossed by the start of the leg", () => {
-    for (const row of ARROW_BASE_ROWS) {
-      expect(paintedColumns(grid[row]), `row ${row}`).toEqual(
-        span(0, ARROW_TIP_ROWS - 1),
-      );
-      expect(columnsOf(grid[row], BLACK), `row ${row}`).toEqual(
-        span(
-          ARROW_LEG_FIRST_COLUMN,
-          ARROW_LEG_FIRST_COLUMN + ARROW_LEG_FILL - 1,
-        ),
-      );
-    }
-  });
-
-  it("has a 3 px leg stepping 1 px right every 2 rows, with 2 px of white on each side below the base", () => {
-    for (let row = ARROW_BASE_ROWS[0]; row <= ARROW_LEG_LAST_ROW; row++) {
-      const start =
-        ARROW_LEG_FIRST_COLUMN + Math.floor((row - ARROW_BASE_ROWS[0]) / 2);
-      expect(columnsOf(grid[row], BLACK), `row ${row}`).toEqual(
-        span(start, start + ARROW_LEG_FILL - 1),
-      );
-      if (row <= ARROW_BASE_ROWS[1]) continue;
-      expect(columnsOf(grid[row], WHITE), `row ${row}`).toEqual([
-        ...span(start - ARROW_BORDER, start - 1),
-        ...span(start + ARROW_LEG_FILL, start + ARROW_LEG_FILL + 1),
-      ]);
-    }
-  });
-
-  it("ends the left side at the base: columns 0 to 2 stay clear below it", () => {
-    for (let row = ARROW_BASE_ROWS[1] + 1; row < CURSOR_SIZE; row++) {
-      expect(grid[row].slice(0, 3), `row ${row}`).toEqual([
-        undefined,
-        undefined,
-        undefined,
-      ]);
-    }
-  });
-
-  it("closes the leg with a flat white cut 7 px wide and 2 px high", () => {
-    for (const row of ARROW_CUT_ROWS) {
-      expect(paintedColumns(grid[row]), `row ${row}`).toEqual(
-        span(ARROW_CUT_COLUMNS[0], ARROW_CUT_COLUMNS[1]),
-      );
-      expect(columnsOf(grid[row], WHITE), `row ${row}`).toHaveLength(7);
-    }
-  });
-
-  it("seals the black fill with white, also on the diagonals", () => {
-    expectSealedFill(grid);
+  it("closes the white fill with a black outline", () => {
+    expectClosedOutline(grid);
   });
 });
 
@@ -448,12 +321,6 @@ describe("the cursor reader", () => {
     );
   });
 
-  it("accepts an odd x on the 1 px grid of the arrow", () => {
-    expect(paintCursor(canvas(rect(1, 3, 1, 1)), CURSOR_ARROW_CELL)[3][1]).toBe(
-      BLACK,
-    );
-  });
-
   it.each([
     ["an odd x", rect(1, 0, 2, 2)],
     ["an odd height", rect(0, 0, 2, 3)],
@@ -465,21 +332,8 @@ describe("the cursor reader", () => {
     ["a path", `<path d="M0 0 L2 2 Z" fill="${BLACK}"/>`],
     ["a group", `<g>${rect(0, 0, 2, 2)}</g>`],
     ["a transform", rect(0, 0, 2, 2).replace("/>", ' transform="scale(2)"/>')],
-  ])("rejects %s on the 2 px grid of the hand", (_case, rects) => {
+  ])("rejects %s on the 2 px grid of both cursors", (_case, rects) => {
     expect(() => paintCursor(canvas(rects), CURSOR_HAND_CELL)).toThrow();
-  });
-
-  it.each([
-    ["a fractional x", rect(0.5, 0, 1, 1)],
-    ["a fractional width", rect(0, 0, 1.5, 1)],
-    ["a percentage", rect(0, 0, "50%", 1)],
-    ["an empty rect", rect(0, 0, 0, 1)],
-    ["a rect off the canvas", rect(31, 0, 2, 1)],
-    ["a path", `<path d="M0 0 L1 1 Z" fill="${BLACK}"/>`],
-    ["a group", `<g>${rect(0, 0, 1, 1)}</g>`],
-    ["a transform", rect(0, 0, 1, 1).replace("/>", ' transform="scale(2)"/>')],
-  ])("rejects %s on the 1 px grid of the arrow", (_case, rects) => {
-    expect(() => paintCursor(canvas(rects), CURSOR_ARROW_CELL)).toThrow();
   });
 
   it("rejects an open outline", () => {
@@ -496,21 +350,5 @@ describe("the cursor reader", () => {
         ),
       ),
     ).not.toThrow();
-  });
-
-  it("rejects black fill touching transparency, even only on a diagonal", () => {
-    const white = rect(0, 0, 5, 5, WHITE);
-    const sealed = (rects: string) =>
-      expectSealedFill(paintCursor(canvas(rects), CURSOR_ARROW_CELL));
-    expect(() => sealed(white + rect(2, 2, 1, 1))).not.toThrow();
-    expect(() => sealed(white + rect(4, 2, 1, 1))).toThrow();
-    expect(() =>
-      sealed(
-        white +
-          rect(5, 3, 1, 2, WHITE) +
-          rect(3, 5, 2, 1, WHITE) +
-          rect(4, 4, 1, 1),
-      ),
-    ).toThrow();
   });
 });
