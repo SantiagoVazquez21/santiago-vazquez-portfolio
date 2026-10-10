@@ -17,7 +17,8 @@ type TechnologyChipListProps = BadgeListProps &
   );
 
 // Tags and chips differ by their border (dotted versus sunken), not only by colour
-// (spec 008, RF-2; spec 011, RF-2).
+// (spec 008, RF-2; spec 011, RF-2). The chip's bevel has no white edge, so it shows on both
+// the grey card and the white detail.
 // Neither is focusable: they only describe the card (spec 008, RF-9; spec 011, RF-2).
 // role="list" keeps the list semantics that Safari drops from lists without bullets.
 export function ContextTagList({ items, itemIds, label }: ContextTagListProps) {
@@ -53,7 +54,7 @@ export function TechnologyChipList({
         <li
           key={item}
           id={itemIds?.[index]}
-          className="border border-t-[#808080] border-r-white border-b-white border-l-[#808080] bg-white px-1 text-sm"
+          className="border border-t-black border-r-[#808080] border-b-[#808080] border-l-black bg-white px-1 text-sm"
         >
           {item}
         </li>
