@@ -24,7 +24,7 @@ Un script de Node de un solo uso, sin paquetes y fuera del proyecto, comprobó c
 
 Cada SVG se revisó antes de copiarlo: un único `<svg>` con `<title>` y un `<path>`, sin `<script>`, `href`, `xlink:href`, `<foreignObject>`, `style` ni atributos `on*`. El único cambio es el atributo `fill` en el `<svg>`, con el color que da `logoFill` (`src/lib/color-contrast.ts`): el de marca si tiene al menos 3:1 contra el blanco del cuerpo (`#FFFFFF`), si no negro (`#000000`). El test `tests/content/skill-logos.test.ts` lo comprueba.
 
-## Logos CC0 (12), en `public/skills/<slug>.svg`
+## Logos CC0 (11), en `public/skills/<slug>.svg`
 
 | Habilidad | Título de la entrada | Slug | Campo `license` | Color de marca | Contraste contra `#FFFFFF` | Color usado | `guidelines` |
 |---|---|---|---|---|---|---|---|
@@ -37,11 +37,10 @@ Cada SVG se revisó antes de copiarlo: un único `<svg>` con `<title>` y un `<pa
 | PostgreSQL | PostgreSQL | `postgresql` | ausente | `#4169E1` | 4,85:1 | `#4169E1` (marca) | https://www.postgresql.org/about/policies/trademarks/ |
 | GitHub | GitHub | `github` | ausente | `#181717` | 17,89:1 | `#181717` (marca) | https://github.com/logos |
 | Figma | Figma | `figma` | ausente | `#F24E1E` | 3,57:1 | `#F24E1E` (marca) | https://www.figma.com/using-the-figma-brand/ |
-| Vite | Vite | `vite` | ausente | `#9135FF` | 5,05:1 | `#9135FF` (marca) | — |
 | Arduino | Arduino | `arduino` | ausente | `#00878F` | 4,32:1 | `#00878F` (marca) | https://www.arduino.cc/en/trademark |
 | Linux | Linux | `linux` | ausente | `#FCC624` | 1,59:1 | `#000000` (negro) | — |
 
-Resultado: 9 en su color de marca y 3 en negro (React, Tailwind CSS y Linux).
+Resultado: 8 en su color de marca y 3 en negro (React, Tailwind CSS y Linux). Vite se dio de baja en la spec 013 (2026-11-01): su archivo se borró.
 
 ## Logos con licencia de atribución (3), en `public/skills/<slug>.svg`
 
@@ -53,7 +52,7 @@ Verificados en T16 (2026-10-08) con el mismo método: un script de Node de un so
 | PHP | PHP | `php` | `CC-BY-SA-4.0` | https://creativecommons.org/licenses/by-sa/4.0/ (sin `license.url`: la oficial de Creative Commons) | https://php.net/download-logos.php | Colin Viebrock (lo dice la página de `source`) | `#777BB4` | 3,98:1 | `#777BB4` (marca) |
 | Git | Git | `git` | `CC-BY-3.0` | https://creativecommons.org/licenses/by/3.0/ (sin `license.url`: la oficial de Creative Commons) | https://git-scm.com/community/logos | Jason Long (lo dice la página de `source`) | `#F03C2E` | 3,90:1 | `#F03C2E` (marca) |
 
-En total, 15 logos de Simple Icons: 11 en su color de marca y 4 en negro (React, Tailwind CSS, Linux y JavaScript). El test `tests/content/skill-logos.test.ts` comprueba el `fill` de los 15 y el aviso de `LICENSES.md`.
+En total, contando los 5 de la spec 013 (sección siguiente), 19 logos de Simple Icons: 14 en su color de marca y 5 en negro (React, Tailwind CSS, Linux, JavaScript y Supabase). El test `tests/content/skill-logos.test.ts` comprueba el `fill` de los 15 y el aviso de `LICENSES.md`.
 
 **Modificación.** Los tres archivos publicados difieren del de Simple Icons: se les agregó el atributo `fill` en el `<svg>` con el color de `logoFill`, y nada más. JavaScript lo permite la licencia MIT, siempre con su aviso. PHP es una obra modificada que sigue bajo **CC BY-SA 4.0** (share-alike: se distribuye bajo la misma licencia). Git es una obra modificada que sigue bajo **CC BY 3.0**.
 
@@ -62,17 +61,31 @@ En total, 15 logos de Simple Icons: 11 en su color de marca y 4 en negro (React,
 - Crédito visible (solo CC BY y CC BY-SA, RF-15): la línea de créditos al pie de la ventana Habilidades, en las dos vistas: "Logo de PHP por Colin Viebrock (color aplicado), [CC BY-SA 4.0] · Logo de Git por Jason Long (color aplicado), [CC BY 3.0]" (en inglés, "PHP logo by Colin Viebrock (color applied), [CC BY-SA 4.0] · Git logo by Jason Long (color applied), [CC BY 3.0]"), con cada licencia como enlace a su URL en una pestaña nueva. JavaScript (MIT) no lleva crédito visible.
 - Datos: la URL de cada licencia en `LOGO_CREDITS` (`src/content/catalog.ts`); autor y nombre de la licencia en `logoCredits` de `src/content/es.ts` y `en.ts`.
 
+## Logos CC0 de la spec 013 (5), en `public/skills/<slug>.svg`
+
+Descarga con `curl` y verificación: 2026-11-01. Contra `data/simple-icons.json` de 16.34.0: una sola entrada con cada título, con `slug` y `hex` de la tabla y **sin** campo `license` (CC0). Cada SVG respondió 200 y pasó la misma revisión de seguridad (un `<svg>`, `<title>` igual al título, un `<path>`, sin `fill`, `<script>`, `href`, `<foreignObject>`, `style` ni `on*`). El único cambio es el `fill` de `logoFill` en el `<svg>`.
+
+| Habilidad | Título de la entrada | Slug | Campo `license` | Color de marca | Contraste contra `#FFFFFF` | Color usado | `guidelines` |
+|---|---|---|---|---|---|---|---|
+| TypeScript | TypeScript | `typescript` | ausente | `#3178C6` | 4,53:1 | `#3178C6` (marca) | https://www.typescriptlang.org/branding |
+| Next.js | Next.js | `nextdotjs` | ausente | `#000000` | 21:1 | `#000000` (marca) | https://vercel.com/design/brands#next-js |
+| Node.js | Node.js | `nodedotjs` | ausente | `#5FA04E` | 3,17:1 | `#5FA04E` (marca) | https://nodejs.org/en/about/branding |
+| Express | Express | `express` | ausente | `#0A0A0A` | 19,8:1 | `#0A0A0A` (marca) | — |
+| Supabase | Supabase | `supabase` | ausente | `#3FCF8E` | 1,99:1 | `#000000` (negro) | — |
+
 ## Marcas con ícono genérico (5), `public/skills/own-program.svg`
+
+KAPLAY usaba este dibujo y se dio de baja en la spec 013; entró Java.
 
 Dibujo propio de "programa" (spec 004, decisión 11), nunca una imitación del logo.
 
 | Habilidad | Motivo |
 |---|---|
-| KAPLAY | No hay ninguna entrada con ese título. |
 | Excel | No hay ninguna entrada con ese título. |
 | Windows | No hay ninguna entrada con ese título; "Git for Windows" (`gitforwindows`) es otra marca y se descarta. |
 | Scrum | No hay ninguna entrada con ese título; "Scrum Alliance" (`scrumalliance`) es otra marca y se descarta. |
 | C# | No hay ninguna entrada con ese título; "C" (`c`) es otro lenguaje y se descarta. |
+| Java | No hay ninguna entrada con ese título (spec 013); "OpenJDK" (`openjdk`) es otra marca, con licencia BSD-3-Clause, y se descarta. |
 
 ## Conceptos con dibujo propio (4)
 

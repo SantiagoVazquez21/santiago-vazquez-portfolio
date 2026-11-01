@@ -3,16 +3,37 @@
 
 import { EXPERIENCE_GLYPH } from "@/lib/desktop-catalog";
 
-export type ProjectId = "gestionPro";
+export type ProjectId = "gestionPro" | "torneoFutbol5" | "clientsApi";
 
 export type TechnologyId =
-  "csharp" | "dotnet" | "winforms" | "mysql" | "postgresql";
+  | "csharp"
+  | "dotnet"
+  | "winforms"
+  | "mysql"
+  | "postgresql"
+  | "nodejs"
+  | "express"
+  | "supabase"
+  | "vercel";
 
-export type ProjectTagId = "teamWork" | "desktopApp";
+export type ProjectTagId = "teamWork" | "desktopApp" | "soloWork" | "restApi";
 
 // Unique across projects, like TaskId: a new project brings its own feature ids.
 export type FeatureId =
-  "customers" | "workOrders" | "sales" | "quotes" | "warranties";
+  | "customers"
+  | "workOrders"
+  | "sales"
+  | "quotes"
+  | "warranties"
+  | "registrationCrud"
+  | "autoCategory"
+  | "duplicateDni"
+  | "feePayment"
+  | "listClients"
+  | "createClient"
+  | "updateClient"
+  | "deleteClient"
+  | "layeredApi";
 
 export type JobId = "municipalInternship";
 
@@ -34,19 +55,23 @@ export type SkillId =
   | "html"
   | "css"
   | "javascript"
+  | "typescript"
   | "react"
+  | "nextjs"
   | "tailwind"
-  | "kaplay"
+  | "nodejs"
+  | "express"
   | "php"
   | "csharp"
+  | "java"
   | "python"
   | "mysql"
   | "postgresql"
+  | "supabase"
   | "relationalModeling"
   | "git"
   | "github"
   | "figma"
-  | "vite"
   | "arduino"
   | "excel"
   | "scrum"
@@ -96,6 +121,36 @@ export const PROJECTS: readonly ProjectEntry[] = [
     featureIds: ["customers", "workOrders", "sales", "quotes", "warranties"],
     screenshot: "/projects/gestion-pro.webp",
   },
+  {
+    id: "torneoFutbol5",
+    glyph: "/projects/torneo-futbol5.svg",
+    repositoryUrl:
+      "https://github.com/SantiagoVazquez21/2doISFT225_SantiagoVazquez_ProyectoTorneoFutbol5",
+    technologyIds: ["csharp", "dotnet", "winforms", "mysql"],
+    tagIds: ["soloWork", "desktopApp"],
+    featureIds: [
+      "registrationCrud",
+      "autoCategory",
+      "duplicateDni",
+      "feePayment",
+    ],
+    screenshot: null,
+  },
+  {
+    id: "clientsApi",
+    glyph: "/projects/clients-api.svg",
+    repositoryUrl: "https://github.com/SantiagoVazquez21/api-clientes-express",
+    technologyIds: ["nodejs", "express", "supabase", "vercel"],
+    tagIds: ["soloWork", "restApi"],
+    featureIds: [
+      "listClients",
+      "createClient",
+      "updateClient",
+      "deleteClient",
+      "layeredApi",
+    ],
+    screenshot: null,
+  },
 ];
 
 export const JOBS: readonly JobEntry[] = [
@@ -119,17 +174,31 @@ export const STUDIES: readonly StudyEntry[] = [
 
 export const LANGUAGE_IDS: readonly LanguageId[] = ["english"];
 
-// Order of annex A of spec 004.
+// Order of annex C of spec 013 (annex A of spec 004, updated).
 export const SKILL_FOLDERS: readonly SkillFolderEntry[] = [
   {
     id: "frontend",
-    skillIds: ["html", "css", "javascript", "react", "tailwind", "kaplay"],
+    skillIds: [
+      "html",
+      "css",
+      "javascript",
+      "typescript",
+      "react",
+      "nextjs",
+      "tailwind",
+    ],
   },
-  { id: "backend", skillIds: ["php", "csharp", "python"] },
-  { id: "databases", skillIds: ["mysql", "postgresql", "relationalModeling"] },
+  {
+    id: "backend",
+    skillIds: ["nodejs", "express", "php", "csharp", "java", "python"],
+  },
+  {
+    id: "databases",
+    skillIds: ["mysql", "postgresql", "supabase", "relationalModeling"],
+  },
   {
     id: "tools",
-    skillIds: ["git", "github", "figma", "vite", "arduino", "excel", "scrum"],
+    skillIds: ["git", "github", "figma", "arduino", "excel", "scrum"],
   },
   {
     id: "systems",
@@ -145,24 +214,28 @@ const PROGRAM_GLYPH: SkillGlyph = {
   brandHex: null,
 };
 
-// Simple Icons 16.34.0 (plan 004, sections 6 and 10); each logo file is filled with logoFill(brandHex).
+// Simple Icons 16.34.0 (plan 004, sections 6 and 10; spec 013, RF-7); each logo file is filled with logoFill(brandHex).
 export const SKILL_GLYPHS: Readonly<Record<SkillId, SkillGlyph>> = {
   html: { src: "/skills/html5.svg", brandHex: "#E34F26" },
   css: { src: "/skills/css.svg", brandHex: "#663399" },
   javascript: { src: "/skills/javascript.svg", brandHex: "#F7DF1E" },
+  typescript: { src: "/skills/typescript.svg", brandHex: "#3178C6" },
   react: { src: "/skills/react.svg", brandHex: "#61DAFB" },
+  nextjs: { src: "/skills/nextdotjs.svg", brandHex: "#000000" },
   tailwind: { src: "/skills/tailwindcss.svg", brandHex: "#06B6D4" },
-  kaplay: PROGRAM_GLYPH,
+  nodejs: { src: "/skills/nodedotjs.svg", brandHex: "#5FA04E" },
+  express: { src: "/skills/express.svg", brandHex: "#0A0A0A" },
   php: { src: "/skills/php.svg", brandHex: "#777BB4" },
   csharp: PROGRAM_GLYPH,
+  java: PROGRAM_GLYPH,
   python: { src: "/skills/python.svg", brandHex: "#3776AB" },
   mysql: { src: "/skills/mysql.svg", brandHex: "#4479A1" },
   postgresql: { src: "/skills/postgresql.svg", brandHex: "#4169E1" },
+  supabase: { src: "/skills/supabase.svg", brandHex: "#3FCF8E" },
   relationalModeling: { src: "/skills/own-erd.svg", brandHex: null },
   git: { src: "/skills/git.svg", brandHex: "#F03C2E" },
   github: { src: "/skills/github.svg", brandHex: "#181717" },
   figma: { src: "/skills/figma.svg", brandHex: "#F24E1E" },
-  vite: { src: "/skills/vite.svg", brandHex: "#9135FF" },
   arduino: { src: "/skills/arduino.svg", brandHex: "#00878F" },
   excel: PROGRAM_GLYPH,
   scrum: PROGRAM_GLYPH,

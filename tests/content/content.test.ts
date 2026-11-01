@@ -157,9 +157,92 @@ const GESTION_PRO_ANNEX_A = {
   },
 } as const;
 
+// Annex A of spec 008, plus the two tags of annex A of spec 013.
 const PROJECT_TAGS_ANNEX_A = {
-  es: { teamWork: "Desarrollado en equipo", desktopApp: "App de escritorio" },
-  en: { teamWork: "Developed as a team", desktopApp: "Desktop app" },
+  es: {
+    teamWork: "Desarrollado en equipo",
+    desktopApp: "App de escritorio",
+    soloWork: "Proyecto individual",
+    restApi: "API REST",
+  },
+  en: {
+    teamWork: "Developed as a team",
+    desktopApp: "Desktop app",
+    soloWork: "Individual project",
+    restApi: "REST API",
+  },
+} as const;
+
+// Annex A of spec 013, letter by letter. screenshotAlt is not in the annex: the field is
+// required even without a screenshot (plan 012, D9), so it follows Gestion Pro's pattern.
+const TORNEO_FUTBOL5_ANNEX_A = {
+  es: {
+    name: "Torneo Fútbol 5",
+    tagline: "Sistema de inscripciones para un torneo de fútbol 5",
+    description:
+      "Aplicación de escritorio para inscribir participantes a un torneo de fútbol 5, con la base de datos en MySQL.",
+    contribution:
+      "Desarrollé la aplicación completa: los formularios, la capa de repositorio con consultas parametrizadas y las transacciones que mantienen sincronizadas las dos tablas de cada inscripción.",
+    screenshotAlt: "Captura de pantalla de Torneo Fútbol 5",
+    features: {
+      registrationCrud: "Alta, modificación y baja de inscripciones",
+      autoCategory: "Categoría asignada automáticamente según edad y sexo",
+      duplicateDni: "Control de DNI repetidos",
+      feePayment: "Registro del pago de la inscripción",
+    },
+  },
+  en: {
+    name: "Torneo Fútbol 5",
+    tagline: "Registration system for a 5-a-side football tournament",
+    description:
+      "Desktop application to register players for a 5-a-side football tournament, backed by a MySQL database.",
+    contribution:
+      "Built the whole application: the forms, the repository layer with parameterized queries and the transactions that keep the two tables of each registration in sync.",
+    screenshotAlt: "Screenshot of Torneo Fútbol 5",
+    features: {
+      registrationCrud: "Create, update and delete registrations",
+      autoCategory: "Category assigned automatically by age and sex",
+      duplicateDni: "Duplicate ID number check",
+      feePayment: "Registration fee payment tracking",
+    },
+  },
+} as const;
+
+const CLIENTS_API_ANNEX_A = {
+  es: {
+    name: "API de Clientes",
+    tagline: "API REST con el CRUD completo de clientes",
+    description:
+      "API REST en Node.js y Express que guarda los clientes en Supabase y está publicada en Vercel.",
+    contribution:
+      "Desarrollé la API completa: las rutas, los controladores con las consultas a Supabase, el manejo de errores con códigos HTTP y el deploy en Vercel.",
+    screenshotAlt: "Captura de pantalla de API de Clientes",
+    features: {
+      listClients: "Listar clientes (GET)",
+      createClient: "Crear clientes (POST)",
+      updateClient: "Editar clientes (PUT)",
+      deleteClient: "Eliminar clientes (DELETE)",
+      layeredApi:
+        "Estructura en capas: rutas, controladores y conexión a la base",
+    },
+  },
+  en: {
+    name: "API de Clientes",
+    tagline: "REST API with full CRUD for customers",
+    description:
+      "REST API built with Node.js and Express that stores customers in Supabase and is deployed on Vercel.",
+    contribution:
+      "Built the whole API: the routes, the controllers with the Supabase queries, error handling with HTTP status codes and the Vercel deployment.",
+    screenshotAlt: "Screenshot of API de Clientes",
+    features: {
+      listClients: "List customers (GET)",
+      createClient: "Create customers (POST)",
+      updateClient: "Update customers (PUT)",
+      deleteClient: "Delete customers (DELETE)",
+      layeredApi:
+        "Layered structure: routes, controllers and database connection",
+    },
+  },
 } as const;
 
 // Annex A of spec 012, letter by letter.
@@ -179,6 +262,15 @@ describe.each(LANGS)("CONTENT.%s projects (spec 008, annex A)", (lang) => {
   it("matches annex A of spec 012 for the screenshot text (RF-13)", () => {
     expect(CONTENT[lang].projects.gestionPro.screenshotAlt).toBe(
       SCREENSHOT_ALT_ANNEX_A[lang],
+    );
+  });
+
+  it("matches annex A of spec 013 for Torneo Futbol 5 and the clients API", () => {
+    expect(CONTENT[lang].projects.torneoFutbol5).toEqual(
+      TORNEO_FUTBOL5_ANNEX_A[lang],
+    );
+    expect(CONTENT[lang].projects.clientsApi).toEqual(
+      CLIENTS_API_ANNEX_A[lang],
     );
   });
 
@@ -270,11 +362,11 @@ describe("organization names (spec 011, RF-10)", () => {
   });
 });
 
-// Table of texts of spec 010, letter by letter; the profile is spec 004's, unchanged.
+// Table of texts of spec 010, letter by letter; the profile is annex B of spec 013.
 const ABOUT_TABLE = {
   es: {
     profile:
-      "Técnico en Informática Personal y Profesional con conocimientos en mantenimiento de hardware, instalación y configuración de sistemas operativos y soporte técnico. Actualmente cursando la Tecnicatura Superior en Desarrollo de Software con manejo de JavaScript, MySQL, HTML/CSS y formación activa en React Native y C# / .NET. Experiencia en diseño de bases de datos relacionales y desarrollo web en entornos de equipo con metodología Scrum.",
+      "Desarrollador Full Stack y estudiante de 2° año de la Tecnicatura Superior en Desarrollo de Software. Trabajo con React, Next.js y TypeScript en el frontend, con Node.js y Express en el backend, y con C# / .NET y Java en aplicaciones de escritorio, sobre bases MySQL, PostgreSQL y Supabase. Soy Técnico en Informática, así que también manejo hardware, redes y soporte técnico.",
     photoAlt: "Foto de perfil de Santiago Elian Vazquez",
     fields: {
       name: "Santiago Elian Vazquez",
@@ -287,7 +379,7 @@ const ABOUT_TABLE = {
   },
   en: {
     profile:
-      "IT Technician with knowledge of hardware maintenance, operating system installation and configuration, and technical support. Currently pursuing a Higher Technical Degree in Software Development, working with JavaScript, MySQL and HTML/CSS, and actively training in React Native and C# / .NET. Experience in relational database design and web development in team environments using the Scrum methodology.",
+      "Full Stack Developer and 2nd-year student of a Higher Technical Degree in Software Development. I work with React, Next.js and TypeScript on the frontend, Node.js and Express on the backend, and C# / .NET and Java for desktop applications, on MySQL, PostgreSQL and Supabase databases. I'm also an IT Technician, so I handle hardware, networking and technical support too.",
     photoAlt: "Profile photo of Santiago Elian Vazquez",
     fields: {
       name: "Santiago Elian Vazquez",
@@ -349,7 +441,7 @@ describe("brand names (RF-14)", () => {
     const brands = SKILL_FOLDERS.flatMap((folder) => folder.skillIds).filter(
       (id) => !CONCEPT_SKILLS.includes(id),
     );
-    expect(brands).toHaveLength(20);
+    expect(brands).toHaveLength(24);
     for (const id of brands) {
       expect(CONTENT.en.skills[id]).toBe(CONTENT.es.skills[id]);
     }

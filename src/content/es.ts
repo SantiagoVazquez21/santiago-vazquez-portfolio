@@ -3,7 +3,7 @@ import type { PortfolioContent } from "@/content/types";
 export const es = {
   about: {
     profile:
-      "Técnico en Informática Personal y Profesional con conocimientos en mantenimiento de hardware, instalación y configuración de sistemas operativos y soporte técnico. Actualmente cursando la Tecnicatura Superior en Desarrollo de Software con manejo de JavaScript, MySQL, HTML/CSS y formación activa en React Native y C# / .NET. Experiencia en diseño de bases de datos relacionales y desarrollo web en entornos de equipo con metodología Scrum.",
+      "Desarrollador Full Stack y estudiante de 2° año de la Tecnicatura Superior en Desarrollo de Software. Trabajo con React, Next.js y TypeScript en el frontend, con Node.js y Express en el backend, y con C# / .NET y Java en aplicaciones de escritorio, sobre bases MySQL, PostgreSQL y Supabase. Soy Técnico en Informática, así que también manejo hardware, redes y soporte técnico.",
     photoAlt: "Foto de perfil de Santiago Elian Vazquez",
     fields: {
       name: "Santiago Elian Vazquez",
@@ -31,10 +31,44 @@ export const es = {
         warranties: "Garantías",
       },
     },
+    torneoFutbol5: {
+      name: "Torneo Fútbol 5",
+      tagline: "Sistema de inscripciones para un torneo de fútbol 5",
+      description:
+        "Aplicación de escritorio para inscribir participantes a un torneo de fútbol 5, con la base de datos en MySQL.",
+      contribution:
+        "Desarrollé la aplicación completa: los formularios, la capa de repositorio con consultas parametrizadas y las transacciones que mantienen sincronizadas las dos tablas de cada inscripción.",
+      screenshotAlt: "Captura de pantalla de Torneo Fútbol 5",
+      features: {
+        registrationCrud: "Alta, modificación y baja de inscripciones",
+        autoCategory: "Categoría asignada automáticamente según edad y sexo",
+        duplicateDni: "Control de DNI repetidos",
+        feePayment: "Registro del pago de la inscripción",
+      },
+    },
+    clientsApi: {
+      name: "API de Clientes",
+      tagline: "API REST con el CRUD completo de clientes",
+      description:
+        "API REST en Node.js y Express que guarda los clientes en Supabase y está publicada en Vercel.",
+      contribution:
+        "Desarrollé la API completa: las rutas, los controladores con las consultas a Supabase, el manejo de errores con códigos HTTP y el deploy en Vercel.",
+      screenshotAlt: "Captura de pantalla de API de Clientes",
+      features: {
+        listClients: "Listar clientes (GET)",
+        createClient: "Crear clientes (POST)",
+        updateClient: "Editar clientes (PUT)",
+        deleteClient: "Eliminar clientes (DELETE)",
+        layeredApi:
+          "Estructura en capas: rutas, controladores y conexión a la base",
+      },
+    },
   },
   projectTags: {
     teamWork: "Desarrollado en equipo",
     desktopApp: "App de escritorio",
+    soloWork: "Proyecto individual",
+    restApi: "API REST",
   },
   technologies: {
     csharp: "C#",
@@ -42,6 +76,10 @@ export const es = {
     winforms: "WinForms",
     mysql: "MySQL",
     postgresql: "PostgreSQL",
+    nodejs: "Node.js",
+    express: "Express",
+    supabase: "Supabase",
+    vercel: "Vercel",
   },
   jobs: {
     municipalInternship: {
@@ -97,19 +135,23 @@ export const es = {
     html: "HTML",
     css: "CSS",
     javascript: "JavaScript",
+    typescript: "TypeScript",
     react: "React",
+    nextjs: "Next.js",
     tailwind: "Tailwind",
-    kaplay: "KAPLAY",
+    nodejs: "Node.js",
+    express: "Express",
     php: "PHP",
     csharp: "C#",
+    java: "Java",
     python: "Python",
     mysql: "MySQL",
     postgresql: "PostgreSQL",
+    supabase: "Supabase",
     relationalModeling: "Modelado relacional (DER)",
     git: "Git",
     github: "GitHub",
     figma: "Figma",
-    vite: "Vite",
     arduino: "Arduino",
     excel: "Excel",
     scrum: "Scrum",

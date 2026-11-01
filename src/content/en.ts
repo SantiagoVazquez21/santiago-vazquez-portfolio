@@ -3,7 +3,7 @@ import type { PortfolioContent } from "@/content/types";
 export const en = {
   about: {
     profile:
-      "IT Technician with knowledge of hardware maintenance, operating system installation and configuration, and technical support. Currently pursuing a Higher Technical Degree in Software Development, working with JavaScript, MySQL and HTML/CSS, and actively training in React Native and C# / .NET. Experience in relational database design and web development in team environments using the Scrum methodology.",
+      "Full Stack Developer and 2nd-year student of a Higher Technical Degree in Software Development. I work with React, Next.js and TypeScript on the frontend, Node.js and Express on the backend, and C# / .NET and Java for desktop applications, on MySQL, PostgreSQL and Supabase databases. I'm also an IT Technician, so I handle hardware, networking and technical support too.",
     photoAlt: "Profile photo of Santiago Elian Vazquez",
     fields: {
       name: "Santiago Elian Vazquez",
@@ -33,10 +33,44 @@ export const en = {
         warranties: "Warranties",
       },
     },
+    torneoFutbol5: {
+      name: "Torneo Fútbol 5",
+      tagline: "Registration system for a 5-a-side football tournament",
+      description:
+        "Desktop application to register players for a 5-a-side football tournament, backed by a MySQL database.",
+      contribution:
+        "Built the whole application: the forms, the repository layer with parameterized queries and the transactions that keep the two tables of each registration in sync.",
+      screenshotAlt: "Screenshot of Torneo Fútbol 5",
+      features: {
+        registrationCrud: "Create, update and delete registrations",
+        autoCategory: "Category assigned automatically by age and sex",
+        duplicateDni: "Duplicate ID number check",
+        feePayment: "Registration fee payment tracking",
+      },
+    },
+    clientsApi: {
+      name: "API de Clientes",
+      tagline: "REST API with full CRUD for customers",
+      description:
+        "REST API built with Node.js and Express that stores customers in Supabase and is deployed on Vercel.",
+      contribution:
+        "Built the whole API: the routes, the controllers with the Supabase queries, error handling with HTTP status codes and the Vercel deployment.",
+      screenshotAlt: "Screenshot of API de Clientes",
+      features: {
+        listClients: "List customers (GET)",
+        createClient: "Create customers (POST)",
+        updateClient: "Update customers (PUT)",
+        deleteClient: "Delete customers (DELETE)",
+        layeredApi:
+          "Layered structure: routes, controllers and database connection",
+      },
+    },
   },
   projectTags: {
     teamWork: "Developed as a team",
     desktopApp: "Desktop app",
+    soloWork: "Individual project",
+    restApi: "REST API",
   },
   technologies: {
     csharp: "C#",
@@ -44,6 +78,10 @@ export const en = {
     winforms: "WinForms",
     mysql: "MySQL",
     postgresql: "PostgreSQL",
+    nodejs: "Node.js",
+    express: "Express",
+    supabase: "Supabase",
+    vercel: "Vercel",
   },
   jobs: {
     municipalInternship: {
@@ -99,19 +137,23 @@ export const en = {
     html: "HTML",
     css: "CSS",
     javascript: "JavaScript",
+    typescript: "TypeScript",
     react: "React",
+    nextjs: "Next.js",
     tailwind: "Tailwind",
-    kaplay: "KAPLAY",
+    nodejs: "Node.js",
+    express: "Express",
     php: "PHP",
     csharp: "C#",
+    java: "Java",
     python: "Python",
     mysql: "MySQL",
     postgresql: "PostgreSQL",
+    supabase: "Supabase",
     relationalModeling: "Relational modeling (ERD)",
     git: "Git",
     github: "GitHub",
     figma: "Figma",
-    vite: "Vite",
     arduino: "Arduino",
     excel: "Excel",
     scrum: "Scrum",

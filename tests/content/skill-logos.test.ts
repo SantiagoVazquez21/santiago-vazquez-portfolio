@@ -5,8 +5,8 @@ import { LOGO_FALLBACK, logoFill } from "@/lib/color-contrast";
 
 const SKILLS_DIR = join(process.cwd(), "public", "skills");
 
-// Simple Icons 16.34.0 entries: 12 CC0 logos (plan 004, section 6) and 3 with an
-// attribution license (plan 004, section 10; docs/logos.md).
+// Simple Icons 16.34.0 entries: 11 CC0 logos (plan 004, section 6), 3 with an
+// attribution license (plan 004, section 10) and 5 CC0 logos of spec 013 (docs/logos.md).
 const LOGOS: readonly { slug: string; title: string; brandHex: string }[] = [
   { slug: "html5", title: "HTML5", brandHex: "#E34F26" },
   { slug: "css", title: "CSS", brandHex: "#663399" },
@@ -17,15 +17,19 @@ const LOGOS: readonly { slug: string; title: string; brandHex: string }[] = [
   { slug: "postgresql", title: "PostgreSQL", brandHex: "#4169E1" },
   { slug: "github", title: "GitHub", brandHex: "#181717" },
   { slug: "figma", title: "Figma", brandHex: "#F24E1E" },
-  { slug: "vite", title: "Vite", brandHex: "#9135FF" },
   { slug: "arduino", title: "Arduino", brandHex: "#00878F" },
   { slug: "linux", title: "Linux", brandHex: "#FCC624" },
   { slug: "javascript", title: "JavaScript", brandHex: "#F7DF1E" },
   { slug: "php", title: "PHP", brandHex: "#777BB4" },
   { slug: "git", title: "Git", brandHex: "#F03C2E" },
+  { slug: "typescript", title: "TypeScript", brandHex: "#3178C6" },
+  { slug: "nextdotjs", title: "Next.js", brandHex: "#000000" },
+  { slug: "nodedotjs", title: "Node.js", brandHex: "#5FA04E" },
+  { slug: "express", title: "Express", brandHex: "#0A0A0A" },
+  { slug: "supabase", title: "Supabase", brandHex: "#3FCF8E" },
 ];
 
-const BLACK_LOGOS = ["react", "tailwindcss", "linux", "javascript"];
+const BLACK_LOGOS = ["react", "tailwindcss", "linux", "javascript", "supabase"];
 
 const JAVASCRIPT_LICENSE_URL =
   "https://github.com/voodootikigod/logo.js/blob/1544bdeed6d618a6cfe4f0650d04ab8d9cfa76d9/LICENSE";
@@ -50,7 +54,7 @@ function noticeFor(notices: string, file: string): string {
 }
 
 describe("public/skills logos", () => {
-  it("holds exactly the 15 logos besides the own glyphs", () => {
+  it("holds exactly the 19 logos besides the own glyphs", () => {
     const logos = readdirSync(SKILLS_DIR)
       .filter((file) => file.endsWith(".svg") && !file.startsWith("own-"))
       .sort();
@@ -72,7 +76,7 @@ describe("public/skills logos", () => {
     },
   );
 
-  it("draws React, Tailwind CSS, Linux and JavaScript in black and the rest in their brand color", () => {
+  it("draws React, Tailwind CSS, Linux, JavaScript and Supabase in black and the rest in their brand color", () => {
     for (const { slug, brandHex } of LOGOS) {
       const expected = BLACK_LOGOS.includes(slug) ? LOGO_FALLBACK : brandHex;
       expect(rootFill(readLogo(slug)), slug).toBe(expected);

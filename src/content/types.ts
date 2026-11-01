@@ -30,8 +30,9 @@ export type PortfolioContent = {
       contribution: string;
       // Required even without a screenshot, so the parity check covers it (plan 012, D9).
       screenshotAlt: string;
-      // Each project shows only the features of its featureIds in the catalog.
-      features: Record<FeatureId, string>;
+      // Each project holds and shows only the features of its featureIds in the catalog;
+      // a content test checks it has exactly those (spec 013: projects no longer share them).
+      features: Partial<Record<FeatureId, string>>;
     }
   >;
   // Shared across projects: two projects can both be "Desarrollado en equipo".

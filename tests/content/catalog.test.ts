@@ -38,20 +38,34 @@ import {
   rootAttributes,
 } from "../lib/svg-checks";
 
-// Folders and skills in the order of annex A of spec 004.
+// Folders and skills in the order of annex C of spec 013 (annex A of spec 004 updated).
 const EXPECTED_FOLDERS: readonly {
   id: FolderId;
   skillIds: readonly SkillId[];
 }[] = [
   {
     id: "frontend",
-    skillIds: ["html", "css", "javascript", "react", "tailwind", "kaplay"],
+    skillIds: [
+      "html",
+      "css",
+      "javascript",
+      "typescript",
+      "react",
+      "nextjs",
+      "tailwind",
+    ],
   },
-  { id: "backend", skillIds: ["php", "csharp", "python"] },
-  { id: "databases", skillIds: ["mysql", "postgresql", "relationalModeling"] },
+  {
+    id: "backend",
+    skillIds: ["nodejs", "express", "php", "csharp", "java", "python"],
+  },
+  {
+    id: "databases",
+    skillIds: ["mysql", "postgresql", "supabase", "relationalModeling"],
+  },
   {
     id: "tools",
-    skillIds: ["git", "github", "figma", "vite", "arduino", "excel", "scrum"],
+    skillIds: ["git", "github", "figma", "arduino", "excel", "scrum"],
   },
   {
     id: "systems",
@@ -89,9 +103,9 @@ describe("SKILL_FOLDERS", () => {
     ]);
   });
 
-  it("holds 6, 3, 3, 7 and 5 skills", () => {
+  it("holds 7, 6, 4, 6 and 5 skills (spec 013, annex C)", () => {
     expect(SKILL_FOLDERS.map((folder) => folder.skillIds.length)).toEqual([
-      6, 3, 3, 7, 5,
+      7, 6, 4, 6, 5,
     ]);
   });
 
@@ -99,10 +113,10 @@ describe("SKILL_FOLDERS", () => {
     expect(SKILL_FOLDERS).toEqual(EXPECTED_FOLDERS);
   });
 
-  it("places each of the 24 skills in exactly one folder", () => {
+  it("places each of the 28 skills in exactly one folder", () => {
     const skillIds = SKILL_FOLDERS.flatMap((folder) => folder.skillIds);
-    expect(skillIds).toHaveLength(24);
-    expect(new Set(skillIds).size).toBe(24);
+    expect(skillIds).toHaveLength(28);
+    expect(new Set(skillIds).size).toBe(28);
   });
 });
 
@@ -122,9 +136,55 @@ const METADATA_MARKERS: readonly string[] = [
   "iCCP",
 ];
 
+// Annex A of spec 013.
+const TORNEO_FUTBOL5_TECHNOLOGIES: readonly TechnologyId[] = [
+  "csharp",
+  "dotnet",
+  "winforms",
+  "mysql",
+];
+
+const TORNEO_FUTBOL5_TAGS: readonly ProjectTagId[] = ["soloWork", "desktopApp"];
+
+const TORNEO_FUTBOL5_FEATURES: readonly FeatureId[] = [
+  "registrationCrud",
+  "autoCategory",
+  "duplicateDni",
+  "feePayment",
+];
+
+const CLIENTS_API_TECHNOLOGIES: readonly TechnologyId[] = [
+  "nodejs",
+  "express",
+  "supabase",
+  "vercel",
+];
+
+const CLIENTS_API_TAGS: readonly ProjectTagId[] = ["soloWork", "restApi"];
+
+const CLIENTS_API_FEATURES: readonly FeatureId[] = [
+  "listClients",
+  "createClient",
+  "updateClient",
+  "deleteClient",
+  "layeredApi",
+];
+
+function projectEntry(id: string) {
+  const project = PROJECTS.find((entry) => entry.id === id);
+  if (project === undefined) {
+    throw new Error(`Missing project: ${id}`);
+  }
+  return project;
+}
+
 describe("PROJECTS", () => {
-  it("lists Gestion Pro as the only project", () => {
-    expect(PROJECTS.map((project) => project.id)).toEqual(["gestionPro"]);
+  it("lists Gestion Pro, Torneo Futbol 5 and the clients API, in that order (spec 013, RF-1)", () => {
+    expect(PROJECTS.map((project) => project.id)).toEqual([
+      "gestionPro",
+      "torneoFutbol5",
+      "clientsApi",
+    ]);
   });
 
   it("keeps only ids, paths and the repository URL (no visible text)", () => {
@@ -215,6 +275,41 @@ describe("PROJECTS", () => {
     expect(PROJECTS[0].repositoryUrl).toBe(
       "https://github.com/ronnin47/sistemaDeGestionAutomotriz",
     );
+  });
+
+  it("gives Torneo Futbol 5 its tags, features and technologies in the order of annex A (spec 013, RF-2)", () => {
+    const project = projectEntry("torneoFutbol5");
+    expect(project.tagIds).toEqual(TORNEO_FUTBOL5_TAGS);
+    expect(project.featureIds).toEqual(TORNEO_FUTBOL5_FEATURES);
+    expect(project.technologyIds).toEqual(TORNEO_FUTBOL5_TECHNOLOGIES);
+  });
+
+  it("gives the clients API its tags, features and technologies in the order of annex A (spec 013, RF-2)", () => {
+    const project = projectEntry("clientsApi");
+    expect(project.tagIds).toEqual(CLIENTS_API_TAGS);
+    expect(project.featureIds).toEqual(CLIENTS_API_FEATURES);
+    expect(project.technologyIds).toEqual(CLIENTS_API_TECHNOLOGIES);
+  });
+
+  it("links the new projects to their public repositories over https (spec 013, RF-3)", () => {
+    expect(projectEntry("torneoFutbol5").repositoryUrl).toBe(
+      "https://github.com/SantiagoVazquez21/2doISFT225_SantiagoVazquez_ProyectoTorneoFutbol5",
+    );
+    expect(projectEntry("clientsApi").repositoryUrl).toBe(
+      "https://github.com/SantiagoVazquez21/api-clientes-express",
+    );
+  });
+
+  it("draws the new projects with their own icons (spec 013, RF-4)", () => {
+    expect(projectEntry("torneoFutbol5").glyph).toBe(
+      "/projects/torneo-futbol5.svg",
+    );
+    expect(projectEntry("clientsApi").glyph).toBe("/projects/clients-api.svg");
+  });
+
+  it("gives the new projects no screenshot (spec 013, RF-5)", () => {
+    expect(projectEntry("torneoFutbol5").screenshot).toBeNull();
+    expect(projectEntry("clientsApi").screenshot).toBeNull();
   });
 });
 
@@ -384,7 +479,7 @@ describe("LANGUAGE_IDS", () => {
   });
 });
 
-// Result of T6 and T16 (plan 004, sections 6 and 10; docs/logos.md).
+// Result of T6 and T16 (plan 004, sections 6 and 10) and T5 of spec 013 (docs/logos.md).
 const LOGO_SKILLS: Partial<Record<SkillId, { src: string; brandHex: string }>> =
   {
     html: { src: "/skills/html5.svg", brandHex: "#E34F26" },
@@ -396,18 +491,22 @@ const LOGO_SKILLS: Partial<Record<SkillId, { src: string; brandHex: string }>> =
     postgresql: { src: "/skills/postgresql.svg", brandHex: "#4169E1" },
     github: { src: "/skills/github.svg", brandHex: "#181717" },
     figma: { src: "/skills/figma.svg", brandHex: "#F24E1E" },
-    vite: { src: "/skills/vite.svg", brandHex: "#9135FF" },
     arduino: { src: "/skills/arduino.svg", brandHex: "#00878F" },
     linux: { src: "/skills/linux.svg", brandHex: "#FCC624" },
     javascript: { src: "/skills/javascript.svg", brandHex: "#F7DF1E" },
     php: { src: "/skills/php.svg", brandHex: "#777BB4" },
     git: { src: "/skills/git.svg", brandHex: "#F03C2E" },
+    typescript: { src: "/skills/typescript.svg", brandHex: "#3178C6" },
+    nextjs: { src: "/skills/nextdotjs.svg", brandHex: "#000000" },
+    nodejs: { src: "/skills/nodedotjs.svg", brandHex: "#5FA04E" },
+    express: { src: "/skills/express.svg", brandHex: "#0A0A0A" },
+    supabase: { src: "/skills/supabase.svg", brandHex: "#3FCF8E" },
   };
 
-// Brands without a usable logo in Simple Icons 16.34.0 (plan 004, section 10.1).
+// Brands without a usable logo in Simple Icons 16.34.0 (plan 004, section 10.1; spec 013, RF-7).
 const GENERIC_SKILLS: readonly SkillId[] = [
-  "kaplay",
   "csharp",
+  "java",
   "excel",
   "scrum",
   "windows",
@@ -544,11 +643,11 @@ describe("Back arrow (spec 012, RF-11)", () => {
 });
 
 describe("SKILL_GLYPHS", () => {
-  it("has a drawing for each of the 24 skills and nothing else", () => {
+  it("has a drawing for each of the 28 skills and nothing else", () => {
     expect(Object.keys(SKILL_GLYPHS).sort()).toEqual([...ALL_SKILL_IDS].sort());
   });
 
-  it("splits the skills into 15 logos, 5 generic brands and 4 concepts", () => {
+  it("splits the skills into 19 logos, 5 generic brands and 4 concepts", () => {
     const covered = [
       ...Object.keys(LOGO_SKILLS),
       ...GENERIC_SKILLS,
@@ -684,28 +783,44 @@ function publicSvgs(directory = join(process.cwd(), "public")): string[] {
 
 const GESTION_PRO_GLYPH = "/projects/gestion-pro.svg";
 
-describe("Gestion Pro icon (spec 008, RF-11, RNF-4)", () => {
-  it("has nothing active", () => {
-    expectSafeSvg(readPublic(GESTION_PRO_GLYPH));
-  });
+const PROJECT_GLYPHS: readonly string[] = PROJECTS.map(({ glyph }) => glyph);
 
-  it("is a 32x32 pixel-art drawing", () => {
-    const root = rootAttributes(readPublic(GESTION_PRO_GLYPH));
-    expect(root.viewBox).toBe("0 0 32 32");
-    expect(root.width).toBe("32");
-    expect(root.height).toBe("32");
-    expect(root["shape-rendering"]).toBe("crispEdges");
-  });
+// The rules of spec 008 (RNF-4) apply to every project icon (spec 013, RNF-1).
+describe.each(PROJECT_GLYPHS)(
+  "project icon %s (spec 008, RF-11, RNF-4; spec 013, RNF-1)",
+  (glyph) => {
+    it("has nothing active", () => {
+      expectSafeSvg(readPublic(glyph));
+    });
 
-  it("has a black outline", () => {
-    expect(readPublic(GESTION_PRO_GLYPH)).toMatch(/fill="#000"/);
-  });
+    it("is a 32x32 pixel-art drawing", () => {
+      const root = rootAttributes(readPublic(glyph));
+      expect(root.viewBox).toBe("0 0 32 32");
+      expect(root.width).toBe("32");
+      expect(root.height).toBe("32");
+      expect(root["shape-rendering"]).toBe("crispEdges");
+    });
 
-  it("weighs 4096 bytes or less", () => {
-    const path = join(process.cwd(), "public", GESTION_PRO_GLYPH);
-    expect(statSync(path).size).toBeLessThanOrEqual(4096);
-  });
+    it("has a black outline", () => {
+      expect(readPublic(glyph)).toMatch(/fill="#000"/);
+    });
 
+    it("weighs 4096 bytes or less", () => {
+      const path = join(process.cwd(), "public", glyph);
+      expect(statSync(path).size).toBeLessThanOrEqual(4096);
+    });
+
+    it("differs from every other SVG of public/", () => {
+      const icon = readPublic(glyph);
+      for (const src of publicSvgs()) {
+        if (src === glyph) continue;
+        expect(readPublic(src), src).not.toBe(icon);
+      }
+    });
+  },
+);
+
+describe("project icons", () => {
   it("walks every folder of public/ looking for drawings", () => {
     const svgs = publicSvgs();
     for (const folder of ["icons", "skills", "cursors", "wallpaper"]) {
@@ -716,14 +831,6 @@ describe("Gestion Pro icon (spec 008, RF-11, RNF-4)", () => {
     }
     expect(svgs).toContain("/skills/own-support.svg");
     expect(svgs).toContain(GESTION_PRO_GLYPH);
-  });
-
-  it("differs from every other SVG of public/", () => {
-    const icon = readPublic(GESTION_PRO_GLYPH);
-    for (const src of publicSvgs()) {
-      if (src === GESTION_PRO_GLYPH) continue;
-      expect(readPublic(src), src).not.toBe(icon);
-    }
   });
 });
 
