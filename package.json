@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "motion": "^12",
-    "next": "^16",
+    "next": "^16.4.3",
     "react": "^19",
     "react-dom": "^19"
   },
