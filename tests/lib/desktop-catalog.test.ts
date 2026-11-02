@@ -83,7 +83,7 @@ describe("DESKTOP_ICONS", () => {
     expect(entryFor("linkedin")).toEqual({
       id: "linkedin",
       glyphSrc: "/icons/linkedin.svg",
-      href: "https://www.linkedin.com/in/santiago-vazquez-b266b3374/",
+      href: "https://www.linkedin.com/in/santiagoelianvazquez/",
       opensNewTab: true,
       downloadName: null,
     });
@@ -148,7 +148,7 @@ describe("DESKTOP_ROWS (spec 012)", () => {
 describe("LINKEDIN_URL", () => {
   it("is the exact profile URL (spec 005, RF-8)", () => {
     expect(LINKEDIN_URL).toBe(
-      "https://www.linkedin.com/in/santiago-vazquez-b266b3374/",
+      "https://www.linkedin.com/in/santiagoelianvazquez/",
     );
   });
 

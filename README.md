@@ -54,7 +54,7 @@ El sitio funciona sin configuración. Para que el formulario envíe emails de ve
 
 ## Contacto
 
-- [LinkedIn](https://www.linkedin.com/in/santiago-vazquez-b266b3374/)
+- [LinkedIn](https://www.linkedin.com/in/santiagoelianvazquez/)
 - [CV en PDF](public/CV_SantiagoElianVazquez.pdf)
 - O desde la ventana **Contacto** del sitio.
 

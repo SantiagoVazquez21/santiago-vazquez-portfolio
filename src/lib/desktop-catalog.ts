@@ -19,8 +19,7 @@ export const RESUME_HREF = `/${RESUME_FILE_NAME}`;
 export const GITHUB_URL = "https://github.com/SantiagoVazquez21";
 
 // Shared by the desktop icon and the contact form's send error (spec 005, RF-8).
-export const LINKEDIN_URL =
-  "https://www.linkedin.com/in/santiago-vazquez-b266b3374/";
+export const LINKEDIN_URL = "https://www.linkedin.com/in/santiagoelianvazquez/";
 
 // Target of About's "Contactarme" (spec 010, RF-9); a constant, never a literal in a component.
 export const CONTACT_WINDOW_ID: WindowId = "contact";

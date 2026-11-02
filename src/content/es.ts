@@ -85,7 +85,7 @@ export const es = {
     municipalInternship: {
       title: "Asistente de Datos y Automatización",
       period: "2025",
-      organization: "Municipalidad de Caseros",
+      organization: "Municipalidad de Tres de Febrero",
       area: "Área de Acción Social",
       modality: "Pasantía · 200 h · 6 meses",
       highlight:

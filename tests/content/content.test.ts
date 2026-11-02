@@ -285,7 +285,7 @@ const MUNICIPAL_INTERNSHIP_ANNEX_A = {
   es: {
     title: "Asistente de Datos y Automatización",
     period: "2025",
-    organization: "Municipalidad de Caseros",
+    organization: "Municipalidad de Tres de Febrero",
     area: "Área de Acción Social",
     modality: "Pasantía · 200 h · 6 meses",
     highlight:
@@ -294,7 +294,7 @@ const MUNICIPAL_INTERNSHIP_ANNEX_A = {
   en: {
     title: "Data and Automation Assistant",
     period: "2025",
-    organization: "Municipalidad de Caseros",
+    organization: "Municipalidad de Tres de Febrero",
     area: "Social Action Department",
     modality: "Internship · 200 h · 6 months",
     highlight:
