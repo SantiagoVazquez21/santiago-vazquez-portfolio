@@ -5,6 +5,8 @@ export const en = {
     metaTitle: "Santiago Elian Vazquez — Full Stack Developer",
     metaDescription:
       "Portfolio of Santiago Elian Vazquez, full stack developer.",
+    metaImageAlt:
+      "Windows 95-style desktop of Santiago Elian Vazquez's portfolio, with the About me window open",
     name: "Santiago Elian Vazquez",
     role: "Full Stack Developer",
   },

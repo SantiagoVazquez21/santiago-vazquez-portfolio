@@ -1,10 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { DICTIONARIES } from "@/i18n";
 import type { Dictionary } from "@/i18n/types";
+import { readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
 import {
   buildErrorMetadata,
   buildHomeMetadata,
   buildNotFoundMetadata,
+  OG_IMAGE,
+  OG_TYPE,
+  SITE_URL,
+  TWITTER_CARD,
   type PageMetadata,
 } from "@/lib/metadata";
 
@@ -14,6 +20,7 @@ const TEST_DICTIONARY: Dictionary = {
   home: {
     metaTitle: "Test home tab title",
     metaDescription: "Test home meta description",
+    metaImageAlt: "Test home meta image alt",
     name: "Test name",
     role: "Test role",
   },
@@ -141,7 +148,11 @@ const NAMED_DICTIONARIES: ReadonlyArray<readonly [string, Dictionary]> = [
 ];
 
 type Field =
-  "title" | "description" | "openGraph.title" | "openGraph.description";
+  | "title"
+  | "description"
+  | "openGraph.title"
+  | "openGraph.description"
+  | "openGraph.image.alt";
 
 type PageSpec = {
   page: string;
@@ -159,6 +170,7 @@ const PAGES: ReadonlyArray<PageSpec> = [
       ["description", (d) => d.home.metaDescription],
       ["openGraph.title", (d) => d.home.metaTitle],
       ["openGraph.description", (d) => d.home.metaDescription],
+      ["openGraph.image.alt", (d) => d.home.metaImageAlt],
     ],
   },
   {
@@ -186,6 +198,8 @@ function readField(metadata: PageMetadata, field: Field): string | undefined {
       return metadata.openGraph?.title;
     case "openGraph.description":
       return metadata.openGraph?.description;
+    case "openGraph.image.alt":
+      return metadata.openGraph?.image?.alt;
   }
 }
 
@@ -233,4 +247,45 @@ describe("page metadata (rule e)", () => {
       expect(buildErrorMetadata(dictionary)).not.toHaveProperty("openGraph");
     },
   );
+});
+
+// Spec 014: the preview image shown when the portfolio link is shared.
+describe("preview image (spec 014)", () => {
+  it("is declared on the home page with an absolute URL and its size (RF-1)", () => {
+    for (const [, dictionary] of NAMED_DICTIONARIES) {
+      const image = buildHomeMetadata(dictionary).openGraph?.image;
+      expect(image?.url).toBe(
+        "https://santiago-vazquez-portfolio.vercel.app/og/preview.png",
+      );
+      expect(image?.width).toBe(1200);
+      expect(image?.height).toBe(630);
+    }
+  });
+
+  it("declares a website with a large-image card (RF-1)", () => {
+    expect(OG_TYPE).toBe("website");
+    expect(TWITTER_CARD).toBe("summary_large_image");
+  });
+
+  it("builds the URL from SITE_URL and the public path", () => {
+    expect(SITE_URL).toBe("https://santiago-vazquez-portfolio.vercel.app");
+    expect(OG_IMAGE.path).toBe("/og/preview.png");
+  });
+
+  const file = join(process.cwd(), "public", OG_IMAGE.path);
+
+  it("is a real 1200x630 PNG in public/ (RF-2)", () => {
+    const bytes = readFileSync(file);
+    expect(bytes.subarray(1, 4).toString("latin1")).toBe("PNG");
+    expect(bytes.readUInt32BE(16)).toBe(OG_IMAGE.width);
+    expect(bytes.readUInt32BE(20)).toBe(OG_IMAGE.height);
+  });
+
+  it("weighs 150 KB or less and carries no metadata (RNF-1)", () => {
+    expect(statSync(file).size).toBeLessThanOrEqual(150 * 1024);
+    const bytes = readFileSync(file);
+    for (const marker of ["eXIf", "tEXt", "iTXt", "zTXt", "iCCP"]) {
+      expect(bytes.includes(marker), marker).toBe(false);
+    }
+  });
 });

@@ -4,6 +4,7 @@ export type Dictionary = {
   home: {
     metaTitle: string;
     metaDescription: string;
+    metaImageAlt: string;
     name: string;
     role: string;
   };
