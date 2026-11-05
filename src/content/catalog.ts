@@ -124,8 +124,7 @@ export const PROJECTS: readonly ProjectEntry[] = [
   {
     id: "torneoFutbol5",
     glyph: "/projects/torneo-futbol5.svg",
-    repositoryUrl:
-      "https://github.com/SantiagoVazquez21/2doISFT225_SantiagoVazquez_ProyectoTorneoFutbol5",
+    repositoryUrl: "https://github.com/SantiagoVazquez21/torneo-futbol5",
     technologyIds: ["csharp", "dotnet", "winforms", "mysql"],
     tagIds: ["soloWork", "desktopApp"],
     featureIds: [

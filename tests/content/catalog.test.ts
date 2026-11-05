@@ -293,7 +293,7 @@ describe("PROJECTS", () => {
 
   it("links the new projects to their public repositories over https (spec 013, RF-3)", () => {
     expect(projectEntry("torneoFutbol5").repositoryUrl).toBe(
-      "https://github.com/SantiagoVazquez21/2doISFT225_SantiagoVazquez_ProyectoTorneoFutbol5",
+      "https://github.com/SantiagoVazquez21/torneo-futbol5",
     );
     expect(projectEntry("clientsApi").repositoryUrl).toBe(
       "https://github.com/SantiagoVazquez21/api-clientes-express",
